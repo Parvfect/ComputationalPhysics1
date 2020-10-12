@@ -63,3 +63,8 @@ struct DoubleVector{
 var t = DoubleVector(dimensions: 3, elements: [2,3,4])
 var s = DoubleVector(dimensions:3, elements: [3,4,5])
 
+
+struct DoubleMatrix{
+    var dimensions:Int = 1
+    
+}
