@@ -39,13 +39,23 @@ func factorial(x:Int) -> Int{
 }
 
 //Q5
-public struct ComplexNumber {
+public struct ComplexNumber:ArgandDiagramable {
+    
     public private(set) var real: Double
     public private(set) var imaginary: Double
+    
     //String interpretable
     public func repr() -> String{
         let representation = String(real) + " + i" + String(imaginary)
         return representation
+    }
+    
+    public func getImagValue()->Double{
+        return self.imaginary
+    }
+    
+    public func getRealValue()->Double{
+        return self.real
     }
     
     public func times(_ other: ComplexNumber) -> ComplexNumber{
@@ -68,12 +78,8 @@ public struct ComplexNumber {
         )
     }
 }
-var value = ComplexNumber(real:3, imaginary:4)
-var secondValue = ComplexNumber(real:5, imaginary: 7)
 //So structs can be passed around like variables
-var thirdValue = secondValue.times(value)
-print(thirdValue.repr())
+
+var t = ComplexNumber(real:3, imaginary:4)
+var n = ArgandDiagram(t)
 //Q9
-public struct ComplexNumberModForm{
-    
-}
