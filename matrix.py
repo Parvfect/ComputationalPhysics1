@@ -29,10 +29,18 @@ class ComplexNumber:
             return ComplexNumber(self.real*other, self.imaginary*other)    
 
 class Vector:
-    pass
+    
+    def __init__(self, dimensions, elements):
+        self.dimensions = dimensions
+        self.elements = elements
+
+    def get_element(self, number):
+        return self.elements[number]=
 
 class ComplexVector:
-    pass
+    
+    def __init__(self, dimensions, elements):
+        super().__init__()
 
 class Matrix:
     
