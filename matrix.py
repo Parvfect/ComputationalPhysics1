@@ -2,10 +2,39 @@ import numpy as np
 
 class ComplexNumber:
     """A complex number representation"""    
+   
     def __init__(self, real, imaginary):
         self.real = real
         self.imaginary = imaginary
+
+    def __add__(self, other):
+        """Uses + for operator overloading"""
+        if isinstance(other, ComplexNumber):
+            return ComplexNumber(self.real+ other.real, self.imaginary+ other.imaginary)
+        else:
+            return ComplexNumber(self.real + other, self.imaginary)
     
+    def __sub__(self, other):
+        """Uses - for operator overloading"""
+        return self.__add__(ComplexNumber(-other.real, -other.imaginary))
+
+    def __mul__(self, other):
+        """Uses * for operator overloading"""
+        if isinstance(other, ComplexNumber):
+            return ComplexNumber((self.real*other.real - self.imaginary*other.imaginary), (self.real*other.imaginary + self.imaginary*other.real))
+        else:
+            return ComplexNumber(self.real*other, self.imaginary*other)    
+
+    def __truediv__(self, other):
+        """Uses / for operator overloading"""
+        if isinstance(other, ComplexNumber):
+            num = self * other.conjugate()
+            denom = other.real*other.real - other.imaginary*other.imaginary
+            num.real, num.imaginary=num.real/denom, num.imaginary/denom
+            return num
+        else:
+            return ComplexNumber(self.real/other, self.imaginary/other)
+
     def __repr__(self):
         return repr("{} + {}i".format(self.real, self.imaginary))
 
@@ -18,16 +47,8 @@ class ComplexNumber:
     def conjugate(self):
         return ComplexNumber(self.real, -self.imaginary)
     
-    def add(self, other):
-        assert isinstance(other, ComplexNumber)
-        return ComplexNumber(self.real+ other.real, self.imaginary+ other.imaginary)
-
-    def multiply(self, other):
-        if isinstance(other, ComplexNumber):
-            return ComplexNumber((self.real*other.real - self.imaginary*other.imaginary), (self.real*other.imaginary + self.imaginary*other.real))
-        else:
-            return ComplexNumber(self.real*other, self.imaginary*other)    
-
+    
+  
 class Vector:
     """Representation of an n-dimensional vector"""
     def __init__(self, dimensions, elements):
@@ -78,6 +99,14 @@ class Matrix:
             return 0
         return 
     
+    def adj(self):
+        """Returns the adjoint of a matrix"""
+        pass
+
+    def inverse(self):
+        """Returns the inverse of a matrix"""
+        pass
+
 class ComplexMatrix(Matrix):
     """Representation of a matrix with complex values"""
     def __init__(self, dimensions, values):
