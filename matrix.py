@@ -21,21 +21,22 @@ class ComplexNumber:
     def __mul__(self, other):
         """Uses * for operator overloading"""
         if isinstance(other, ComplexNumber):
-            return ComplexNumber((self.real*other.real - self.imaginary*other.imaginary), (self.real*other.imaginary + self.imaginary*other.real))
+            return ComplexNumber((self.real*other.real + self.imaginary*other.imaginary), (self.real*other.imaginary + self.imaginary*other.real))
         else:
             return ComplexNumber(self.real*other, self.imaginary*other)    
 
     def __truediv__(self, other):
         """Uses / for operator overloading"""
         if isinstance(other, ComplexNumber):
-            num = self * other.conjugate()
+            num = self.__mul__(other.conjugate())
             denom = other.real*other.real - other.imaginary*other.imaginary
-            num.real, num.imaginary=num.real/denom, num.imaginary/denom
-            return num
+            return ComplexNumber(num.real/denom, num.imaginary/denom)
         else:
             return ComplexNumber(self.real/other, self.imaginary/other)
 
     def __repr__(self):
+        if self.imaginary == 0:
+            return repr(self.real)
         return repr("{} + {}i".format(self.real, self.imaginary))
 
     def get_realPart(self):
