@@ -1,6 +1,5 @@
-import UIKit
 
-
+import Foundation
 
 func square_a_function(function: (Double) -> Double, argument: Double) -> Double {
     let x = function(argument)
@@ -19,10 +18,12 @@ func x_then_y(x:(Double) -> Double, y:(Double)->Double, z:Double) -> Double{
 
 
 func exponent(number:Double, power:Int) -> Double{
+    
+    var sum = 1.0
     for _ in 1...power{
-        number*number
+        sum *= number
     }
-    return number
+    return sum
 }
 
 

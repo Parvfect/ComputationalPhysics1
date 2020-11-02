@@ -1,5 +1,4 @@
-import UIKit
-
+import Foundation
 //Q1
 
 var counter = 0
