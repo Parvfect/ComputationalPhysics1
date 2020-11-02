@@ -81,20 +81,21 @@ struct ComplexNumber:CustomStringConvertible {
         return "\(self.mod)e^(i\(self.theta))"
     }
     
-    func infSeq() -> Int{
+    func infSeq(){
         var t = self.copy()
-        let s = ComplexNumber(real:0, imaginary:0)
-        
+        let s = ComplexNumber(real:1, imaginary:0)
         for i in 0...100{
             t = ComplexNumber(real: t.real * t.real - t.imaginary * t.imaginary, imaginary: 2*t.real*t.imaginary) + s
-            
+            print(t)
             if (t.real * t.real + t.imaginary * t.imaginary) >= 4 {
                 return i
             }
         }
-        return 0
     }
 }
+
+var t = ComplexNumber(real:0, imaginary:0)
+t.infSeq()
 
 extension ComplexNumber{
     //Verified, that is how operator overloading works (well one way)
