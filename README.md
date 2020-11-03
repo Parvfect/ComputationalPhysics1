@@ -5,4 +5,4 @@ Also for me (linux running swift, this is essential)
 export PATH=/home/parv/Downloads/swift-5.3-RELEASE-ubuntu20.04/usr/bin:"${PATH}"
 swift pacakge init --type executable
 swift run <package name>
-
+nice
