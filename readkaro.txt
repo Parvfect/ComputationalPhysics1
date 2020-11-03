@@ -1,0 +1,4 @@
+export PATH=/home/parv/Downloads/swift-5.3-RELEASE-ubuntu20.04/swift-5.3-RELEASE-ubuntu20.04/usr/bin:"${PATH}"
+swift pacakge init --type executable
+swift run <package name>
+

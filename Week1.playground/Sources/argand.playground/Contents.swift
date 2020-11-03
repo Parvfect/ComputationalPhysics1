@@ -1,154 +1,311 @@
+
 import Foundation
-import UIKit
-import PlaygroundSupport
 
-public protocol ArgandDiagramable {
-    func getRealValue() -> Double
-    func getImagValue() -> Double
+
+infix operator **
+//infix operator .
+
+struct ComplexNumber:CustomStringConvertible {
+    //A complex number representation
+    var real:Double
+    var imaginary:Double
+    var mod:Double
+    var theta:Double
+    
+    
+    init(real:Double, imaginary:Double){
+        self.real = real
+        self.imaginary = imaginary
+        self.mod =  sqrt(self.real*self.real + self.imaginary*self.imaginary)
+        self.theta = atan(self.imaginary/self.real)
+        
+    }
+    
+    func copy() -> ComplexNumber{
+        return ComplexNumber(real: self.real, imaginary: self.imaginary)
+    }
+    
+    var description: String {
+        return "\(real) + \(imaginary)i"
+    }
+    
+    func getImaginary() -> Double{
+        return self.imaginary
+    }
+    
+    func getReal() -> Double{
+        return self.real
+    }
+    
+    func conjugate() -> ComplexNumber{
+        return ComplexNumber(real: self.real, imaginary: -self.imaginary)
+    }
+    
+    func add(_ other: ComplexNumber) -> ComplexNumber{
+        return ComplexNumber(real: (self.real+other.real), imaginary: (self.imaginary+other.imaginary))
+    }
+    
+    func subtract(_ other: ComplexNumber) -> ComplexNumber{
+        return self.add(ComplexNumber(real: -other.real, imaginary: -other.imaginary))
+    }
+    
+    func multiply(_ other: ComplexNumber) -> ComplexNumber{
+        //Use varadic parameters to accept vary of input data types
+        //return ComplexNumber(real: (self.real*(Double)other), imaginary: (self.imaginary*(Double)other))
+        //Needs to be fixed, causing problems
+        return ComplexNumber(real : (self.real*other.real - self.imaginary*other.imaginary), imaginary: (self.real*other.imaginary + other.real*self.imaginary))
+    }
+    
+    func power(_ other: Int) -> ComplexNumber{
+        var s = self.copy()
+        let t = self.copy()
+        var i = 1
+        while i < other {
+            s = t*s
+            i+=1
+        }
+        return s
+    }
+    
+    func divide(_ other: ComplexNumber) -> ComplexNumber{
+        let denom = other.real*other.real - other.imaginary*other.imaginary
+        let num = self.multiply(other.conjugate())
+        return ComplexNumber(real: num.real/denom, imaginary: num.imaginary/denom)
+    }
+    
+    func polar_form() -> String {
+        return "\(self.mod) ( cos\(self.theta) + isin\(self.theta))"
+    }
+    
+    func eForm() -> String {
+        return "\(self.mod)e^(i\(self.theta))"
+    }
+    
+    func infSeq() -> Int{
+        var t = self.copy()
+        let s = ComplexNumber(real:0, imaginary:0)
+        
+        for i in 0...100{
+            t = ComplexNumber(real: t.real * t.real - t.imaginary * t.imaginary, imaginary: 2*t.real*t.imaginary) + s
+            
+            if (t.real * t.real + t.imaginary * t.imaginary) >= 4 {
+                return i
+            }
+        }
+        return 0
+    }
 }
 
-public class ArgandDiagram<T: ArgandDiagramable>: UIView {
-    private var limit: Int = 0
-    private var scale: Int = 1
-    private var vector: T
-    private let offSet: CGFloat = 50
+extension ComplexNumber{
+    //Verified, that is how operator overloading works (well one way)
+    static func + (left: ComplexNumber, right:ComplexNumber) -> ComplexNumber{
+        return left.add(right)
+    }
+    static func - (left: ComplexNumber, right:ComplexNumber) -> ComplexNumber{
+        return left.subtract(right)
+    }
+    static func * (left: ComplexNumber, right:ComplexNumber) -> ComplexNumber{
+        return left.multiply(right)
+    }
+    static func / (left: ComplexNumber, right:ComplexNumber) -> ComplexNumber{
+        return left.divide(right)
+    }
+    static func ** (left: ComplexNumber, right:Int) -> ComplexNumber{
+        return left.power(right)
+    }
     
-    public init(_ vectorIn: T) {
-        vector = vectorIn
-        
-        var maxValue = max(abs(vectorIn.getRealValue()), abs(vectorIn.getImagValue()))
-        
-        if maxValue.remainder(dividingBy: 5.0) != 0.0 {
-            maxValue += 5.0 - maxValue.remainder(dividingBy: 5.0)
+}
+
+//var t = ComplexNumber(real:4, imaginary: 4)
+
+struct Vector{
+    //Representation of a n-dimensional vector
+    var dimensions:Int
+    var elements:[Double]
+    
+    init(dimensions:Int, elements: [Double]){
+        self.dimensions = dimensions
+        self.elements = elements
+    }
+    
+    func getElement(number:Int) -> Double{
+        return self.elements[number]
+    }
+    
+    func add(_ other: Vector) -> Vector{
+        var s = Vector(dimensions: self.dimensions, elements: [])
+        for i in 0..<self.elements.count {
+            s.elements[i] = self.elements[i] + other.elements[i]
         }
-        
-        limit = Int(maxValue)
-        scale = Int(maxValue / 5.0)
-        
-        super.init(frame: CGRect(x: 0, y: 0, width: 500 + 2*offSet, height: 500 + 2*offSet))
+        return s
     }
     
-    required init?(coder decoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    func minus(_ other: Vector) -> Vector{
+        var s = Vector(dimensions: self.dimensions, elements: [])
+        for i in 0..<self.elements.count {
+            s.elements[i] = self.elements[i] - other.elements[i]
+        }
+        return s
     }
     
-    override public func draw(_ rect: CGRect) {
-        let width = rect.width - 2*offSet
-        let height = rect.height - 2*offSet
-        let framedRect = CGRect(x: offSet, y: offSet, width: width, height: height)
-        
-        UIColor(red: 1, green: 1, blue: 1, alpha: 1).setFill()
-        UIBezierPath(rect: CGRect(x: 0, y: 0, width: 500 + 2*offSet, height: 500 + 2*offSet)).fill()
-        
-        labelAxis("Re", in: CGRect(x: width + offSet + 20, y: height/2 + 45, width: 40, height: 10))
-        labelAxis("Im", in: CGRect(x: width/2 + 42, y: offSet - 25, width: 40, height: 10))
-        drawXTics(xtics(framedRect, maxValue: limit))
-        drawYTics(ytics(framedRect, maxValue: limit))
-        UIColor(red: 0, green: 0, blue: 0, alpha: 1).set()
-        drawAxis(framedRect)
-        
-        UIColor.red.set()
-        UIColor.red.setFill()
-        
-        let line = UIBezierPath()
-        
-        line.move(to: CGPoint(x: width/2 + offSet, y: height/2 + offSet))
-        line.addLine(to: CGPoint(x: CGFloat(vector.getRealValue())*width / CGFloat(2*limit) + width/2 + offSet,
-                                 y: -CGFloat(vector.getImagValue())*height / CGFloat(2*limit) + height/2 + offSet))
-        line.lineWidth = 2
-        line.stroke()
-        
-        let center = CGPoint(x: CGFloat(vector.getRealValue())*width / CGFloat(2*limit) + width/2 + offSet,
-                             y: -CGFloat(vector.getImagValue())*height / CGFloat(2*limit) + height/2 + offSet)
-        let radius = 2.5
-        line.addArc(withCenter: center, radius: CGFloat(radius), startAngle: 0.0, endAngle: .pi * 2.0, clockwise: true)
-        
-        // Draw
-        line.stroke()
-        
-        PlaygroundPage.current.liveView = self
+    func multiply(_ other: Double) -> Vector{
+        var s = Vector(dimensions: self.dimensions, elements: [])
+        for i in 0..<self.elements.count {
+            s.elements[i] = self.elements[i] * other
+        }
+        return s
     }
     
-    private func drawAxis(_ rect: CGRect) {
-        let grid = UIBezierPath()
-        let width = rect.width
-        let height = rect.height
-        
-        grid.lineWidth = 2
-        grid.move(to: CGPoint(x: offSet, y: height/2 + offSet))
-        grid.addLine(to: CGPoint(x: width + offSet, y: height/2 + offSet))
-        grid.move(to: CGPoint(x: width/2 + offSet, y: offSet))
-        grid.addLine(to: CGPoint(x: width/2 + offSet, y: height + offSet))
-        grid.stroke()
+    func dotProduct(_ other:Vector) -> Double{
+        var sum = 0.0
+        for i in 0..<self.elements.count {
+            sum += self.elements[i] + other.elements[i]
+        }
+        return sum
+    }
+}
+
+extension Vector{
+    static func + (left: Vector, right:Vector) -> Vector{
+        return left.add(right)
+    }
+    static func - (left: Vector, right:Vector) -> Vector{
+        return left.minus(right)
+    }
+    static func *(left: Vector, right:Double) -> Vector{
+        return left.multiply(right)
+    }
+    /*static func .(left: Vector, right:Vector) -> Double{
+     return left.dotProduct(right)
+     }*/
+}
+
+struct ComplexVector {
+    //A vector but its complex. Inheritance was just too complicated
+    
+    var arr:[ComplexNumber]
+    var dimensions:Int
+    
+    init(dimensions:Int, real_elements: [Double], imag_elements: [Double]){
+        self.dimensions = dimensions
+        self.arr = []
+        for i in 0...real_elements.count-1 {
+            self.arr.append(ComplexNumber(real:real_elements[i], imaginary: imag_elements[i]))
+        }
     }
     
-    private func labelAxis(_ textIn: String, in box: CGRect) {
-        let label = UILabel(frame: box)
-        
-        label.text = textIn
-        label.textColor = UIColor.purple
-        label.drawText(in: box)
+    func getElement(number:Int) -> ComplexNumber{
+        return self.arr[number]
     }
     
-    private func drawXTics(_ tics: [CGPoint]) {
-        let size = CGSize(width: 0.01, height: 500)
+    func add(_ other: ComplexVector) -> ComplexVector{
+        var s = ComplexVector(dimensions: self.dimensions, real_elements: [], imag_elements: [])
+        for i in 0..<self.arr.count-1 {
+            s.arr[i] = self.arr[i] + other.arr[i]
+        }
+        return s
+    }
+    
+    func minus(_ other: ComplexVector) -> ComplexVector{
+        var s = ComplexVector(dimensions: self.dimensions, real_elements: [], imag_elements: [])
+        for i in 0..<self.arr.count-1 {
+            s.arr[i] = self.arr[i] - other.arr[i]
+        }
+        return s
+    }
+    
+    
+    func divide(_ other: ComplexVector) -> ComplexVector{
+        var s = ComplexVector(dimensions: self.dimensions, real_elements: [], imag_elements: [])
+        for i in 0..<self.arr.count-1 {
+            s.arr[i] = self.arr[i] / other.arr[i]
+        }
+        return s
+    }
+    
+    func multiply(_ other: ComplexVector) -> ComplexVector{
+        var s = ComplexVector(dimensions: self.dimensions, real_elements: [], imag_elements: [])
+        for i in 0..<self.arr.count-1 {
+            s.arr[i] = self.arr[i] * other.arr[i]
+        }
+        return s
+    }
+    
+    
+    
+}
+
+struct Matrix{
+    //Representation of an n-dimensional linear transformation
+    var arr = [[Double]]()
+    var dimensions:(x:Int, y:Int)
+    
+    init(dimensions:(x:Int, y:Int), elements:[Double]){
+        self.dimensions = dimensions
         
-        for i in 0..<tics.count {
-            let quad = UIBezierPath(rect: CGRect(origin: tics[i], size: size))
-            
-            UIColor(red: 103/255, green: 146/255, blue: 195/255, alpha: 1).set()
-            quad.fill()
-            quad.stroke()
-            
-            if -tics.count/2 + i != 0 {
-                let label = UILabel(frame: CGRect(origin: tics[i], size: CGSize(width: 40, height: 10)))
-                
-                label.text = "\((-tics.count/2 + i) * scale)"
-                label.textColor = UIColor.purple
-                label.drawText(in: CGRect(x: tics[i].x-10, y: tics[i].y + 10 + 250, width: 40, height: 20))
+        for i in 0...dimensions.x {
+            for j in 0...dimensions.y{
+                self.arr[i][j] = elements[i*dimensions.y + j]
             }
         }
     }
-    
-    private func xtics(_ rect: CGRect, maxValue: Int) -> [CGPoint] {
-        let width = rect.width
-        var tics = [CGPoint]()
-        
-        for step in 0...(maxValue/scale)*2 {
-            tics.append(CGPoint(x: offSet + width/(CGFloat(maxValue/scale * 2)) * CGFloat(step), y: offSet))
-        }
-        
-        return tics
-    }
-    
-    private func drawYTics(_ tics: [CGPoint]) {
-        let size = CGSize(width: 500, height: 0.01)
-        
-        for i in 0..<tics.count {
-            let quad = UIBezierPath(rect: CGRect(origin: tics[i], size: size))
-            
-            UIColor(red: 103/255, green: 146/255, blue: 195/255, alpha: 1).set()
-            quad.fill()
-            quad.stroke()
-            
-            if -tics.count/2 + i != 0 {
-                let label = UILabel(frame: CGRect(origin: tics[i], size: CGSize(width: 40, height: 10)))
-                
-                label.text = "\((tics.count/2 - i) * scale)"
-                label.textColor = UIColor.purple
-                label.drawText(in: CGRect(x: tics[i].x + 10 + 250, y: tics[i].y - 10, width: 40, height: 20))
-            }
-        }
-    }
-    
-    private func ytics(_ rect: CGRect, maxValue: Int) -> [CGPoint] {
-        let height = rect.height
-        var tics = [CGPoint]()
-        
-        for step in 0...(maxValue/scale)*2 {
-            tics.append(CGPoint(x: offSet, y: offSet + height/(CGFloat(maxValue/scale * 2)) * CGFloat(step)))
-        }
-        
-        return tics
+}
+
+struct CartesianCoordinate{
+    //Representation of a point
+    var x:Double
+    var y:Double
+    var z:Double
+    init(x:Double, y:Double ,z:Double){
+        self.x = x
+        self.y = y
+        self.z = z
     }
 }
+
+var t = ComplexNumber(real:3, imaginary: 1)
+/* def get_element(self, r, c):
+ return self.elements[r][c]
+ 
+ def dot_product(self, other):
+ assert isinstance(other, Matrix)
+ 
+ def eigen(self):
+ """Returns the eigenvector and eigenvalue of the greatest magnitude"""
+ pass
+ 
+ def modulus(self):
+ """Takes the determinant of a matrix"""
+ 
+ if self.dimensions[0] != self.dimensions[1]:
+ print("Needs to be a square matrice")
+ return 0
+ 
+ if self.dimensions == (2,2):
+ return (self.get_element(0,0)*self.get_element(1,1)) - (self.get_element(1,0)*self.get_element(0,1))
+ else:
+ return 0
+ return
+ 
+ class ComplexMatrix(Matrix):
+ """Representation of a matrix with complex values"""
+ def __init__(self, dimensions, values):
+ super().__init__(self)
+ for i in values:
+ assert isinstance(i, ComplexNumber)
+ 
+ def get_element(self, r, c):
+ return self.elements[r][c]
+ 
+ 
+ 
+ def LorentzForce(E, B, v, q):
+ """Takes in the electric field strength, magnetic field strength and scalar
+ charge and returns the lorentz force as a coordinate"""
+ F = CartesianCoordinate()
+ F.x = q*E.x + q*v.x*B.x
+ F.y = q*E.y + q*v.y*B.y
+ F.z = q*E.z + q*v.z*B.z
+ return F
+ }*/
+

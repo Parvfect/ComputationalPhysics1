@@ -81,7 +81,7 @@ struct ComplexNumber:CustomStringConvertible {
         return "\(self.mod)e^(i\(self.theta))"
     }
     
-    func infSeq(){
+    func infSeq() -> Int{
         var t = self.copy()
         let s = ComplexNumber(real:1, imaginary:0)
         for i in 0...100{
@@ -91,11 +91,10 @@ struct ComplexNumber:CustomStringConvertible {
                 return i
             }
         }
+        return 0
     }
 }
 
-var t = ComplexNumber(real:0, imaginary:0)
-t.infSeq()
 
 extension ComplexNumber{
     //Verified, that is how operator overloading works (well one way)
@@ -263,8 +262,6 @@ struct CartesianCoordinate{
         self.z = z
     }
 }
-
-var t = ComplexNumber(real:3, imaginary: 1)
 /* def get_element(self, r, c):
  return self.elements[r][c]
  

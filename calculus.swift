@@ -57,10 +57,3 @@ func integrate(function: (Double) -> Double, lower:Double, higher:Double, steps:
     }
     return sum
 }
-var t = differentiate(function:cube, argument:300.0)
-var s = five_point_derivative(function:cube, argument:300.0)
-var n = integrate(function:cos, lower:0.0, higher:343.0, steps:10000)
-
-print(t)
-print(s)
-print(n)
