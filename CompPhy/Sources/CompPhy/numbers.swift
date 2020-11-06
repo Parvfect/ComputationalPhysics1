@@ -1,6 +1,20 @@
 
 import Foundation
 
+/*
+What I would like to add in this-- 
+
+1) Some special linear transformations and vectors, so that I don't have to enter them every time
+2) Better Documentation
+3) Handling for all kinds of operator overloading, not just one side
+4) A struct for an expression, or is that just a function..?
+5) Vector struct's directionality
+6) A mapping feature -- need to figure out how to make graphs on swift
+7) . dot product operator overloading??
+8) Seperate files for special functions, classes, matrices, vectors, expressions
+
+*/
+
 
 infix operator **
 //infix operator .
@@ -116,7 +130,6 @@ extension ComplexNumber{
     
 }
 
-//var t = ComplexNumber(real:4, imaginary: 4)
 
 struct Vector{
     //Representation of a n-dimensional vector
@@ -128,8 +141,12 @@ struct Vector{
         self.elements = elements
     }
     
-    func getElement(number:Int) -> Double{
+    func get_element(p:Int) -> Double{
         return self.elements[number]
+    }
+
+    func add_element(t:Double) {
+        self.elements.append(t)
     }
     
     func add(_ other: Vector) -> Vector{
@@ -163,6 +180,24 @@ struct Vector{
         }
         return sum
     }
+
+    func transform(_ other:Matrix) -> Vector{
+        if self.dimesions!= other.dimesions.0{
+            print("Can't be multiplied with each other you dolt")
+        }
+        let t = Vector(dimensions:self.dimensions, elements:[])
+        var value = 0.0
+        else{
+            for i in 0...self.dimesions{
+                for j in 0...self.dimensions{
+                    value += other.get_element(r:i,c:j) * self.get_element(p:j)
+                }
+                t.add_element(value)
+            }
+        }
+        return t
+
+    }
 }
 
 extension Vector{
@@ -175,9 +210,13 @@ extension Vector{
     static func *(left: Vector, right:Double) -> Vector{
         return left.multiply(right)
     }
-    /*static func .(left: Vector, right:Vector) -> Double{
-     return left.dotProduct(right)
-     }*/
+    static func *(left:Matrix, right:Vector) -> Vector{
+        return right.transform(left)
+    }
+
+    static func *(left:Vector, right:Matrix) -> Vector{
+        return left.transform(right)
+    }
 }
 
 struct ComplexVector {
@@ -249,6 +288,52 @@ struct Matrix{
             }
         }
     }
+
+    func get_element(r:Int, c:Int) -> Double {
+        return self.arr[r][c]
+    }
+
+    func copy() -> Matrix{
+        var elements: [Double]
+        for i in 0...dimensions.x {
+            for j in 0...dimensions.y{
+                elements.append(self.arr[i][j]) 
+            }
+        }
+        return Matrix(dimensions:self.diimensions, elements:elements)
+    }
+
+    func modulus(A:[[Double]] = [[]], total:Double = 0.0) -> Double {
+
+        let indices = self.dimensions.0
+        if self.dimensions.0 == self.dimensions.1{
+            if self.dimensions.0 == 2{
+                return (self.get_element(r:0,c:0) * self.get_element(r:1,c:1) - self.get_element(r:1,c:0) * self.get_element(r:0,c:1))
+            }
+            //Recursively creating smaller matrices to calcluate their determinant
+            else{
+
+                for fc in 0..(indices){
+                    As = self.copy()
+                    As = As[1:]
+                    height = len(As)
+
+                    for i in 0..height{
+                        As[i] = As[i][0:fc] + As[i][fc+1:] 
+                    }
+                            sign = (-1) ** (fc % 2) # F) 
+                    # G) pass submatrix recursively
+                    sub_det = modulus(As)
+                    # H) total all returns from recursion
+                    total += sign * A[0][fc] * sub_det 
+            
+                return total
+                }
+                
+
+            }
+        }
+    }
 }
 
 struct CartesianCoordinate{
@@ -262,48 +347,3 @@ struct CartesianCoordinate{
         self.z = z
     }
 }
-/* def get_element(self, r, c):
- return self.elements[r][c]
- 
- def dot_product(self, other):
- assert isinstance(other, Matrix)
- 
- def eigen(self):
- """Returns the eigenvector and eigenvalue of the greatest magnitude"""
- pass
- 
- def modulus(self):
- """Takes the determinant of a matrix"""
- 
- if self.dimensions[0] != self.dimensions[1]:
- print("Needs to be a square matrice")
- return 0
- 
- if self.dimensions == (2,2):
- return (self.get_element(0,0)*self.get_element(1,1)) - (self.get_element(1,0)*self.get_element(0,1))
- else:
- return 0
- return
- 
- class ComplexMatrix(Matrix):
- """Representation of a matrix with complex values"""
- def __init__(self, dimensions, values):
- super().__init__(self)
- for i in values:
- assert isinstance(i, ComplexNumber)
- 
- def get_element(self, r, c):
- return self.elements[r][c]
- 
- 
- 
- def LorentzForce(E, B, v, q):
- """Takes in the electric field strength, magnetic field strength and scalar
- charge and returns the lorentz force as a coordinate"""
- F = CartesianCoordinate()
- F.x = q*E.x + q*v.x*B.x
- F.y = q*E.y + q*v.y*B.y
- F.z = q*E.z + q*v.z*B.z
- return F
- }*/
-
