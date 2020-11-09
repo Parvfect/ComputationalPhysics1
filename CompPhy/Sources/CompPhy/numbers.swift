@@ -142,12 +142,12 @@ struct Vector{
     }
     
     func get_element(p:Int) -> Double{
-        return self.elements[number]
+        return self.elements[p]
     }
 
-    func add_element(t:Double) {
+   /* mutating func add_element(t:Double) {
         self.elements.append(t)
-    }
+    }*/
     
     func add(_ other: Vector) -> Vector{
         var s = Vector(dimensions: self.dimensions, elements: [])
@@ -182,17 +182,18 @@ struct Vector{
     }
 
     func transform(_ other:Matrix) -> Vector{
-        if self.dimesions!= other.dimesions.0{
+        
+        var t = Vector(dimensions:self.dimensions, elements:Array(repeating:0.0, count:self.dimensions))
+        if self.dimensions != other.dimensions.0{
             print("Can't be multiplied with each other you dolt")
         }
-        let t = Vector(dimensions:self.dimensions, elements:[])
-        var value = 0.0
         else{
-            for i in 0...self.dimesions{
+        var value = 0.0
+            for i in 0...self.dimensions{
                 for j in 0...self.dimensions{
                     value += other.get_element(r:i,c:j) * self.get_element(p:j)
                 }
-                t.add_element(value)
+                t.elements[i] = (value)
             }
         }
         return t
@@ -294,16 +295,16 @@ struct Matrix{
     }
 
     func copy() -> Matrix{
-        var elements: [Double]
+        var elements: [Double] = []
         for i in 0...dimensions.x {
             for j in 0...dimensions.y{
                 elements.append(self.arr[i][j]) 
             }
         }
-        return Matrix(dimensions:self.diimensions, elements:elements)
+        return Matrix(dimensions:self.dimensions, elements:elements)
     }
 
-    func modulus(A:[[Double]] = [[]], total:Double = 0.0) -> Double {
+    /*func modulus(A:[[Double]] = [[]], total:Double = 0.0) -> Double {
 
         let indices = self.dimensions.0
         if self.dimensions.0 == self.dimensions.1{
@@ -333,7 +334,7 @@ struct Matrix{
 
             }
         }
-    }
+    }*/
 }
 
 struct CartesianCoordinate{
