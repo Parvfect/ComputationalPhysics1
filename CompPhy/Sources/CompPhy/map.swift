@@ -1,4 +1,7 @@
-override func draw(_ rect: NSRect) {
+import Foundation
+
+
+/*override func draw(_ rect: NSRect) {
     NSColor(red: 103/255, green: 146/255, blue: 195/255, alpha: 1).set()
     let line = NSBezierPath()
     line.move(to: NSMakePoint(10, 5))
@@ -22,3 +25,4 @@ override func draw(_ rect: NSRect) {
 }
 
 draw()
+*/
