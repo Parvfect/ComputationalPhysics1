@@ -7,27 +7,26 @@ What I would like to add in this--
 1) Some special linear transformations and vectors, so that I don't have to enter them every time
 2) Better Documentation
 3) Handling for all kinds of operator overloading, not just one side
-4) A struct for an expression, or is that just a function..?
-5) Vector struct's directionality
+4) A public struct for an expression, or is that just a function..?
+5) Vector public struct's directionality
 6) A mapping feature -- need to figure out how to make graphs on swift
 7) . dot product operator overloading??
 8) Seperate files for special functions, classes, matrices, vectors, expressions
 
 */
 
-
 infix operator **
 //infix operator .
 
-struct ComplexNumber:CustomStringConvertible {
+public struct ComplexNumber:CustomStringConvertible {
     //A complex number representation
-    var real:Double
-    var imaginary:Double
-    var mod:Double
-    var theta:Double
+    public var real:Double
+    public var imaginary:Double
+    public var mod:Double
+    public var theta:Double
     
     
-    init(real:Double, imaginary:Double){
+    public init(real:Double, imaginary:Double){
         self.real = real
         self.imaginary = imaginary
         self.mod =  sqrt(self.real*self.real + self.imaginary*self.imaginary)
@@ -39,7 +38,7 @@ struct ComplexNumber:CustomStringConvertible {
         return ComplexNumber(real: self.real, imaginary: self.imaginary)
     }
     
-    var description: String {
+    public var description: String {
         return "\(real) + \(imaginary)i"
     }
     
@@ -64,7 +63,7 @@ struct ComplexNumber:CustomStringConvertible {
     }
     
     func multiply(_ other: ComplexNumber) -> ComplexNumber{
-        //Use varadic parameters to accept vary of input data types
+        //Use public varadic parameters to accept public vary of input data types
         //return ComplexNumber(real: (self.real*(Double)other), imaginary: (self.imaginary*(Double)other))
         //Needs to be fixed, causing problems
         return ComplexNumber(real : (self.real*other.real - self.imaginary*other.imaginary), imaginary: (self.real*other.imaginary + other.real*self.imaginary))
@@ -131,12 +130,12 @@ extension ComplexNumber{
 }
 
 
-struct Vector{
+public struct Vector{
     //Representation of a n-dimensional vector
-    var dimensions:Int
-    var elements:[Double]
+    public var dimensions:Int
+    public var elements:[Double]
     
-    init(dimensions:Int, elements: [Double]){
+    public init(dimensions:Int, elements: [Double]){
         self.dimensions = dimensions
         self.elements = elements
     }
@@ -220,13 +219,13 @@ extension Vector{
     }
 }
 
-struct ComplexVector {
+public struct ComplexVector {
     //A vector but its complex. Inheritance was just too complicated
     
-    var arr:[ComplexNumber]
-    var dimensions:Int
+    public var arr:[ComplexNumber]
+    public var dimensions:Int
     
-    init(dimensions:Int, real_elements: [Double], imag_elements: [Double]){
+    public init(dimensions:Int, real_elements: [Double], imag_elements: [Double]){
         self.dimensions = dimensions
         self.arr = []
         for i in 0...real_elements.count-1 {
@@ -275,12 +274,12 @@ struct ComplexVector {
     
 }
 
-struct Matrix{
+public struct Matrix{
     //Representation of an n-dimensional linear transformation
-    var arr = [[Double]]()
-    var dimensions:(x:Int, y:Int)
+    public var arr = [[Double]]()
+    public var dimensions:(x:Int, y:Int)
     
-    init(dimensions:(x:Int, y:Int), elements:[Double]){
+    public init(dimensions:(x:Int, y:Int), elements:[Double]){
         self.dimensions = dimensions
         
         for i in 0...dimensions.x {
@@ -337,11 +336,11 @@ struct Matrix{
     }*/
 }
 
-struct CartesianCoordinate{
+public struct CartesianCoordinate{
     //Representation of a point
-    var x:Double
-    var y:Double
-    var z:Double
+    public var x:Double
+    public var y:Double
+    public var z:Double
     init(x:Double, y:Double ,z:Double){
         self.x = x
         self.y = y

@@ -1,5 +1,5 @@
 
-struct SimpleHarmonicOscillator{
+public struct SimpleHarmonicOscillator{
     
     var frequency: Double
     var position: Double

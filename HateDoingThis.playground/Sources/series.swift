@@ -1,7 +1,7 @@
 import Foundation
 
 
-struct ArithmeticProgression:CustomStringConvertible{
+public struct ArithmeticProgression:CustomStringConvertible{
     var a:Double
     var d:Double
     var n:Double
@@ -24,13 +24,13 @@ struct ArithmeticProgression:CustomStringConvertible{
         return (k/2)*(2*self.a + (k-1)*self.d)
     }
 
-    var description: String{
+    public var description: String{
         return "\(self.a) + \(self.sum_to_k(k:2.0)) + \(self.sum_to_k(k:3.0)) + \(self.sum_to_k(k:4.0)) + ... + \(self.getLastTerm())"
     }
 }
 
 
-struct GeometricProgression:CustomStringConvertible{
+public struct GeometricProgression:CustomStringConvertible{
     var a:Double
     var r:Double
     var n:Double
@@ -53,12 +53,12 @@ struct GeometricProgression:CustomStringConvertible{
         return (self.a*(1 - pow(self.r, (k-1))))/(1-self.r)
     }
 
-    var description: String{
+    public var description: String{
         return "\(self.a) + \(self.sum_to_k(k:2.0)) + \(self.sum_to_k(k:3.0)) + \(self.sum_to_k(k:4.0)) + ... + \(self.getLastTerm())"
     }
 }
 
-struct ArithoGeometricProgression:CustomStringConvertible{
+public struct ArithoGeometricProgression:CustomStringConvertible{
     var a:Double
     var r:Double
     var n:Double
@@ -83,7 +83,7 @@ struct ArithoGeometricProgression:CustomStringConvertible{
             return ((self.a - self.getLastTerm()*self.r) / (1-r)) + ((self.r*self.d*(1 - pow(self.r,(k-1))))/pow((1-self.r),2))
     }
 
-    var description: String{
+    public var description: String{
         return "\(self.a) + \(self.sum_to_k(k:2.0)) + \(self.sum_to_k(k:3.0)) + \(self.sum_to_k(k:4.0)) + ... + \(self.getLastTerm())"
     }
 }

@@ -3,13 +3,13 @@ import Foundation
 
 //The idea is to take in a string and break it down into a computer readable and appliable expression
 
-struct Expression{
-    var arguments: [String:Double]
-    var coefficents: [Double]
+public struct Expression{
+    public var arguments: [String:Double]
+    public var coefficents: [Double]
 
 }
 
-struct Function{
+public struct Function{
     //Okay I am a bit torn here. Do I make an init that makes an argument and the other thing as a function of specific arguments, or what..?
     //So maybe a list of arguments (dictionary), and their result is saved as the relation?
     //This is a one variable function
@@ -95,7 +95,7 @@ struct Function{
 }
 
 
-func euler_step(function: (Double) -> Double, h:Double, y0:Double, steps:Int) -> Double{
+public func euler_step(function: (Double) -> Double, h:Double, y0:Double, steps:Int) -> Double{
         //yn+1 = yn + hf(t,y)
         
         var y = y0
@@ -111,13 +111,41 @@ func euler_step(function: (Double) -> Double, h:Double, y0:Double, steps:Int) ->
     }
 
 
-func square(x:Double)->Double{
+public func square(x:Double)->Double{
     return x*x
 }
 
 
 
-
+public func TrapezoidalIntegration(function:(Double)->Double, x:Double, n:Double, upper:Double)->Double{
+    
+    var x_temp = x
+    
+    /**Divide the range into trapeziums of height delta*/
+    let delta = (upper - x)/(n)
+    
+    var i = 1.0
+    
+    /**Getting the first value y(0) - it won't be doubled as its the boundary*/
+    var t:Double = function(x)
+    
+    while i<n{
+        
+        /**Moving x to the next point*/
+        x_temp += delta * i
+        
+        /**Getting the y value for the point*/
+        t += 2*function(x_temp)
+        
+        /**Shifting to the next trapezium*/
+        i += 1.0
+    }
+    
+    /**Getting the last value y(n) - it won't be doubled as its the boundary*/
+    t += function(upper)
+    
+    return t*delta/2
+}
 /*
 func expression(value:String){
 
