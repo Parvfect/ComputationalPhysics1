@@ -132,7 +132,7 @@ public func TrapezoidalIntegration(function:(Double)->Double, x:Double, n:Double
     while i<n{
         
         /**Moving x to the next point*/
-        x_temp += delta * i
+        x_temp = x + delta * i
         
         /**Getting the y value for the point*/
         t += 2*function(x_temp)
