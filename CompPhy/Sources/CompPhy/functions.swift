@@ -146,6 +146,43 @@ public func TrapezoidalIntegration(function:(Double)->Double, x:Double, n:Double
     
     return t*delta/2
 }
+
+public func SimpsonIntegration(function:(Double)->Double, x:Double, n:Double, upper:Double)->Double{
+
+    var x_temp = x
+    
+
+    /**Divide the range into trapeziums of height delta*/
+    let delta = (upper - x)/(n)
+    
+    var i = 1.0
+    
+    /**Getting the first value y(0) - it won't be doubled as its the boundary*/
+    var t:Double = function(x)
+    
+    while i<n{
+        
+        /**Moving xs to the next point*/
+        x_temp = x + delta * i
+
+        /**Which is the better method? if else or force?*/
+        if i.remainder(dividingBy:2) == 0.0{
+            t += 2*function(x_temp)
+        }
+        else{
+            t += 4*function(x_temp)
+        }
+       
+        /**Shifting to the next curve*/
+        i += 1.0
+    }
+    
+    /**Getting the last value y(n) - it won't be doubled as its the boundary*/
+    t += function(upper)
+    
+    return t*delta/3
+}
+
 /*
 func expression(value:String){
 
