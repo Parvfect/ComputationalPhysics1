@@ -183,6 +183,22 @@ public func SimpsonIntegration(function:(Double)->Double, x:Double, n:Double, up
     return t*delta/3
 }
 
+public func WorkDone(force: Double, displacement: Double) -> Double {
+    return force*displacement
+}
+
+
+public func electronWork(r: Double){
+    //Integrate it over the distance (2 pi r)
+    var force = Electron.mass *Electron.velocity *Electron.velocity / r
+    var displacement = r 
+    
+    return SimpsonIntegration(function:WorkDone, x:0, n:10, upper: (2*Double.pi*r))
+
+
+
+}
+
 /*
 func expression(value:String){
 

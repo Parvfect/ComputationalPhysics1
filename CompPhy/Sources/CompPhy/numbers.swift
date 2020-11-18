@@ -347,3 +347,10 @@ public struct CartesianCoordinate{
         self.z = z
     }
 }
+
+
+public struct Electron{
+    public var mass = 9.1e-31
+    public var velocity = 2.2e7
+    public var charge = 1.6e-19
+}
