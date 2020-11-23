@@ -143,6 +143,20 @@ public struct Vector{
     func get_element(p:Int) -> Double{
         return self.elements[p]
     }
+    
+   /** func copy() -> Vector{
+        
+        /**Creating an empty array for the elements of the copy vector **/
+        var elem : [Double] = []
+        
+        /**Copying the array elements**/
+        for i in self.elements{
+            elem.append(i)
+        }
+
+        /**Returning the copy vector**/
+        return Vector(dimensions: self.dimensions, elements: elem)
+    }*/
 
    /* mutating func add_element(t:Double) {
         self.elements.append(t)
@@ -197,6 +211,20 @@ public struct Vector{
         }
         return t
 
+    }
+    
+    public func euler_step(function: (Vector) -> Vector, y0:Vector, n:Int, delta: Double ) -> Vector{
+        
+        var y = y0
+       // var t = t0
+        
+        for _ in 0...n{
+            
+            let m = function(y)
+            y = y + m.multiply(delta)
+        }
+        
+        return y
     }
 }
 

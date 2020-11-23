@@ -95,18 +95,22 @@ public struct Function{
 }
 
 
-public func euler_step(function: (Double) -> Double, h:Double, y0:Double, steps:Int) -> Double{
+public func euler_step(function: (Double) -> Double, h:Double, y0:Double, t0:Double, steps:Int) -> [Double]{
         //yn+1 = yn + hf(t,y)
         
         var y = y0
-        var value = 0.0
-        for _ in 0...steps{
-            y+=h
-            value += h * function(y)
-            print(y, value)
-        }
+        var t = t0
+        var s: [Double] = []
+        var m = function(t)
+        for _ in 1...steps{
+            
+            t += h
+            m = function(t)
+            y+=h*m
+            s.append(y)
+    }
 
-        return value
+        return s
         
     }
 
@@ -190,3 +194,16 @@ func expression(value:String){
     print(powers)
     print(signs)
 }*/
+
+public func VectorConj(V1: Vector) -> Vector{
+    
+    /**Creating an empty array for the new vector elements*/
+    var elem : [Double] = []
+    
+    /**Applying the transformation*/
+    elem.append(V1.get_element(p: 0))
+    elem.append(-(V1.get_element(p: 1)))
+    
+    /**Returning the new Vector*/
+    return Vector(dimensions: V1.dimensions, elements: elem)
+}
