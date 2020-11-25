@@ -5,6 +5,9 @@ import math
 class SimpleHarmonicOscillator:
     
     positions = []
+    velocities = []
+    times = []
+
     def __init__(self, mass, frequency, position, velocity):
         self.mass = mass
         self.frequency = frequency
@@ -34,6 +37,19 @@ class SimpleHarmonicOscillator:
             self.positions.append(self.position)
 
         plt.plot(self.positions)
+        plt.show()
+
+    def duffing_oscillator(self, gamma, driving_frequency, delta, alpha, beta, dt, n):
+        t = 0
+        for i in range(n):
+            acceleration = gamma* math.cos(math.radians(driving_frequency*t)) - delta * self.velocity - alpha*self.position - beta* self.position*self.position
+            self.velocity += acceleration*dt
+            self.position += self.velocity*dt
+            t += dt
+            self.positions.append(self.position)
+            self.times.append(t)
+
+        plt.plot(self.times, self.positions)
         plt.show()
 
 class SimplePendellum:
@@ -71,5 +87,6 @@ class SimplePendellum:
             plt.plot(self.positions)
             plt.show()
         """
-t = SimpleHarmonicOscillator(1, 20, 0, 10)
-t.solve_damped_driven(0.01, 10000, 0.05, 50, 20)
+t = SimpleHarmonicOscillator(1, 200, 200, 100)
+
+t.duffing_oscillator(8,9.5,0.02,1,5,0.10,10000)
