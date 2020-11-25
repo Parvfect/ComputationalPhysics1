@@ -95,18 +95,19 @@ public struct Function{
 }
 
 
-public func euler_step(function: (Double) -> Double, h:Double, y0:Double, steps:Int) -> Double{
+public func euler_step(function: (Double) -> Double, h:Double, y0:Double, t0:Double, steps:Int) -> [Double]{
         //yn+1 = yn + hf(t,y)
         
         var y = y0
-        var value = 0.0
+        var t = t0
+        var y_arr :[Double] = []
         for _ in 0...steps{
-            y+=h
-            value += h * function(y)
-            print(y, value)
+            t += h
+            y += function(t)
+            y_arr.append(y)
         }
 
-        return value
+        return y_arr
         
     }
 
@@ -187,10 +188,10 @@ public func WorkDone(force: Double, displacement: Double) -> Double {
     return force*displacement
 }
 
-
+/**
 public func electronWork(r: Double){
     //Integrate it over the distance (2 pi r)
-    var force = Electron.mass *Electron.velocity *Electron.velocity / r
+    var force = Electron.mass * Electron.velocity * Electron.velocity / r
     var displacement = r 
     
     return SimpsonIntegration(function:WorkDone, x:0, n:10, upper: (2*Double.pi*r))
@@ -198,7 +199,7 @@ public func electronWork(r: Double){
 
 
 }
-
+*/
 /*
 func expression(value:String){
 
