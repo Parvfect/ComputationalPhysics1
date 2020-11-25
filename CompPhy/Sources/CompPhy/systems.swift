@@ -30,16 +30,13 @@ public struct SimplePendellum{
 
     public mutating func step(dt:Double, n:Int){
         
-        if n==0{
-            print(self.positions)
-        }
-        else{
-            self.acceleration += self.compute_acceleration()*dt
-            self.velocity += self.acceleration*dt
+        for i in 1...n{
+            self.velocity += (-self.g*sin(self.theta*3.14/180)/self.length)*dt
             self.theta += self.velocity*dt
             self.positions.append(self.theta)
-            self.step(dt:dt, n:(n-1))
         }
+
+        print(self.positions)
 
     }
 
