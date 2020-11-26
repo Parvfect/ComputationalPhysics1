@@ -58,12 +58,13 @@ class SimplePendellum:
     g = 9.8
     positions = []
 
-    def __init__(self, length, theta, velocity):
+    def __init__(self, length, theta, velocity, mass):
         """Initialises the instance variables"""
         self.length = length
         self.theta  = theta
         self.velocity = velocity
         self.acceleration = 0
+        self.mass = mass
         self.frequency = (1/(2*3.14))*(math.sqrt(self.g/self.length))
         
     def euler_step(self, dt, n):
@@ -87,6 +88,46 @@ class SimplePendellum:
             plt.plot(self.positions)
             plt.show()
         """
-t = SimpleHarmonicOscillator(1, 200, 200, 100)
 
-t.duffing_oscillator(8,9.5,0.02,1,5,0.10,10000)
+class ElasticPendellum(SimplePendellum):
+
+    lengths = []
+
+    def __init__(self, theta, ang_velocity, initial_length, mass, stretch, v_length, spring_constant):
+        super().__init__(initial_length, theta, ang_velocity, mass)
+        self.k = spring_constant
+        self.x = stretch
+        self.v_l = v_length
+
+    def solve(self, dt, n):
+
+        times = []
+        t = 0
+
+
+        for i in range(n):
+            print(self.velocity)
+            acceleration_theta = - (self.k*self.x/self.mass) + self.g * math.cos(math.radians(self.theta)) + (self.length + self.x)*self.velocity*self.velocity
+            acceleration_length = - ((self.g * math.sin(math.radians(self.theta)))/(self.length + self.x)) - ((2*self.v_l*self.velocity)/(self.length + self.x))
+            self.velocity += (acceleration_theta *dt)
+            self.v_l += acceleration_length * dt
+            self.theta += self.velocity*dt
+            self.x += self.v_l*dt
+            self.positions.append(self.theta)
+            self.lengths.append(self.x)
+            t+=dt
+            times.append(t)
+
+        plt.plot(times, self.positions)
+        plt.xlabel("Time (s)")
+        plt.ylabel("Theta (degrees)")
+        plt.show()
+
+        plt.plot(times, self.lengths)
+        plt.xlabel("Time (s)")
+        plt.ylabel("Length of pendellum (x) ")
+        plt.show()
+
+
+t = ElasticPendellum(0.03, 0, 0.02, 0.02, 0.01, 0.02, 0.03)
+t.solve(0.01, 1000)
