@@ -2,6 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+
+
+def rounding(decimal_places, arr):
+    """Takes in an array of values and rounds them to n digits"
+        Because precision causes values to become infinity"""
+    
+    for i in range(0, len(arr)):
+        arr[i] = round(i,decimal_places)
+
+    return arr
+
 class SimpleHarmonicOscillator:
     
     positions = []
@@ -57,6 +68,7 @@ class SimplePendellum:
     #Acceleration due to gravity
     g = 9.8
     positions = []
+    velocities = []
 
     def __init__(self, length, theta, velocity, mass):
         """Initialises the instance variables"""
@@ -92,6 +104,7 @@ class SimplePendellum:
 class ElasticPendellum(SimplePendellum):
 
     lengths = []
+    v_lenghts = []
 
     def __init__(self, theta, ang_velocity, initial_length, mass, stretch, v_length, spring_constant):
         super().__init__(initial_length, theta, ang_velocity, mass)
@@ -99,24 +112,38 @@ class ElasticPendellum(SimplePendellum):
         self.x = stretch
         self.v_l = v_length
 
+    
+    def f_theta(self):
+        return (-self.g*np.sin(math.radians(self.theta)) - 2*self.velocity*self.v_l) / self.length
+
+    def f_L(self):
+        return (self.mass*self.length*self.velocity**2 - self.k*(self.x) + self.mass*self.g*np.cos(math.radians(self.theta))) / self.mass
+    
     def solve(self, dt, n):
 
         times = []
         t = 0
-
+        ang_vels = []
+        vels = []
 
         for i in range(n):
-            print(self.velocity)
-            acceleration_theta = - (self.k*self.x/self.mass) + self.g * math.cos(math.radians(self.theta)) + (self.length + self.x)*self.velocity*self.velocity
-            acceleration_length = - ((self.g * math.sin(math.radians(self.theta)))/(self.length + self.x)) - ((2*self.v_l*self.velocity)/(self.length + self.x))
+            acceleration_theta = self.f_theta()
+            acceleration_length = self.f_L()
             self.velocity += (acceleration_theta *dt)
-            self.v_l += acceleration_length * dt
+            self.v_l += acceleration_length*dt 
             self.theta += self.velocity*dt
             self.x += self.v_l*dt
             self.positions.append(self.theta)
             self.lengths.append(self.x)
+            vels.append(self.v_l)
+            ang_vels.append(self.velocity)
+
             t+=dt
             times.append(t)
+        
+        moms = [self.mass*i for i in ang_vels]
+
+
 
         plt.plot(times, self.positions)
         plt.xlabel("Time (s)")
@@ -128,6 +155,20 @@ class ElasticPendellum(SimplePendellum):
         plt.ylabel("Length of pendellum (x) ")
         plt.show()
 
+        plt.plot(self.positions, ang_vels)
+        plt.xlabel("Theta (degrees)")
+        plt.ylabel("Velocities")
+        plt.show()
 
-t = ElasticPendellum(0.03, 0, 0.02, 0.02, 0.01, 0.02, 0.03)
-t.solve(0.01, 1000)
+        plt.plot(self.lengths, vels)
+        plt.xlabel("Lengths")
+        plt.ylabel("Velocity of spring")
+        plt.show()
+
+        plt.plot(self.positions, moms)
+        plt.xlabel("Theta (degrees)")
+        plt.ylabel("Momentum")
+        plt.show()
+
+t = ElasticPendellum(0.1, 0.1, 2, 2, 3, 1, 5)
+t.solve(0.001, 1000000)
