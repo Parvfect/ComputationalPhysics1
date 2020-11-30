@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-
+from matplotlib import animation
 
 
 def rounding(decimal_places, arr):
@@ -197,3 +197,49 @@ class DoublePendellum():
     def fz1(self):
         """Returns acceleration for x1 for time instant dt"""
         return ((self.m2*self.l2*self.z2*math.cos(math.radians(self.x1 - self.x2))) - self.m2*self.l2*self.z2*math.sin(math.radians(self.x1 - self.x2))/(self.m1+self.m2)*(self.l1)) - self.g*math.sin(math.radians(self.x1))/self.l1
+
+class DuffingOscillator:
+
+    def __init__(self, x, y, a, b, w, g, d):
+        self.x = x
+        self.y = y
+        self.z = 0
+        self.a = a
+        self.b = b
+        self.g = g
+        self.d = d
+        self.w = w
+    
+    def fz(self, t):
+        return self.g*math.cos(math.radians(self.w*t)) - (self.d*self.y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
+
+    def solve(self, dt, n):
+        vels = []
+        times = []
+        positions = []
+        t = 0
+        for i in range(n):  
+            self.z = self.fz(t)
+            self.y += self.z*dt 
+            self.x += self.y*dt
+            positions.append(self.x)
+            vels.append(self.y)
+
+            t+=dt
+            times.append(t)
+        
+        #moms = [self.mass*i for i in vels]
+
+        plt.plot(positions, vels)
+        #fig = plt.figure()
+       # anim = animation.FuncAnimation(fig, animate, init_func=init,
+       #                        frames=200, interval=20, blit=True)
+        plt.show()
+
+
+        plt.plot(times, positions)
+        plt.show()
+
+
+t = DuffingOscillator(0,0,1,-1,1,0.3,0.2)
+t.solve(100, 100000)
