@@ -126,7 +126,7 @@ class ElasticPendellum(SimplePendellum):
         ang_vels = []
         vels = []
 
-        for i in range(n):
+        for i in range(n):  
             acceleration_theta = self.f_theta()
             acceleration_length = self.f_L()
             self.velocity += (acceleration_theta *dt)
@@ -170,5 +170,30 @@ class ElasticPendellum(SimplePendellum):
         plt.ylabel("Momentum")
         plt.show()
 
-t = ElasticPendellum(0.1, 0.1, 2, 2, 3, 1, 5)
-t.solve(0.001, 1000000)
+
+class DoublePendellum():
+    l1 = l2 = 9.8
+    g = 9.8
+    x1_arr = []
+    x1_arr = []
+    y1_arr = []
+    y2_arr = []
+
+    def __init__(self, m1, m2, x1, x2, y1, y2, z1=0, z2=0):
+        self.m1 = m1
+        self.m2 = m2
+        self.x1 = x1
+        self.x2 = x2
+        self.y1 = y1
+        self.y2 = y2
+        self.z1 = z1
+        self.z2 = z2
+
+    def fz2(self):
+        """Returns acceleration of x2 for time instant dt"""
+        return (self.l1*self.y1*self.y1*math.sin(math.radians(self.x1-self.x2)) 
+         - self.g*math.sin(math.radians(self.x2)) - self.l1*math.cos(math.radians(self.x1 - self.x2)))/self.l2
+
+    def fz1(self):
+        """Returns acceleration for x1 for time instant dt"""
+        return ((self.m2*self.l2*self.z2*math.cos(math.radians(self.x1 - self.x2))) - self.m2*self.l2*self.z2*math.sin(math.radians(self.x1 - self.x2))/(self.m1+self.m2)*(self.l1)) - self.g*math.sin(math.radians(self.x1))/self.l1
