@@ -133,7 +133,7 @@ class ElasticPendellum(SimplePendellum):
             self.v_l += acceleration_length*dt 
             self.theta += self.velocity*dt
             self.x += self.v_l*dt
-            self.positions.append(self.theta)
+            self.positions.append(180*self.theta/3.14)
             self.lengths.append(self.x)
             vels.append(self.v_l)
             ang_vels.append(self.velocity)
@@ -144,17 +144,17 @@ class ElasticPendellum(SimplePendellum):
         moms = [self.mass*i for i in ang_vels]
 
 
-
+        '''
         plt.plot(times, self.positions)
         plt.xlabel("Time (s)")
         plt.ylabel("Theta (degrees)")
         plt.show()
-
+        
         plt.plot(times, self.lengths)
         plt.xlabel("Time (s)")
         plt.ylabel("Length of pendellum (x) ")
         plt.show()
-
+        '''
         plt.plot(self.positions, ang_vels)
         plt.xlabel("Theta (degrees)")
         plt.ylabel("Velocities")
@@ -164,12 +164,12 @@ class ElasticPendellum(SimplePendellum):
         plt.xlabel("Lengths")
         plt.ylabel("Velocity of spring")
         plt.show()
-
+        '''
         plt.plot(self.positions, moms)
         plt.xlabel("Theta (degrees)")
         plt.ylabel("Momentum")
         plt.show()
-
+        '''
 
 class DoublePendellum():
     l1 = l2 = 9.8
@@ -192,11 +192,11 @@ class DoublePendellum():
     def fz2(self):
         """Returns acceleration of x2 for time instant dt"""
         return (self.l1*self.y1*self.y1*math.sin(math.radians(self.x1-self.x2)) 
-         - self.g*math.sin(math.radians(self.x2)) - self.l1*math.cos(math.radians(self.x1 - self.x2)))/self.l2
+         - self.g*math.sin(self.x2) - self.l1*math.cos(math.radians(self.x1 - self.x2)))/self.l2
 
     def fz1(self):
         """Returns acceleration for x1 for time instant dt"""
-        return ((self.m2*self.l2*self.z2*math.cos(math.radians(self.x1 - self.x2))) - self.m2*self.l2*self.z2*math.sin(math.radians(self.x1 - self.x2))/(self.m1+self.m2)*(self.l1)) - self.g*math.sin(math.radians(self.x1))/self.l1
+        return ((self.m2*self.l2*self.z2*math.cos(self.x1 - self.x2)) - self.m2*self.l2*self.z2*math.sin(math.radians(self.x1 - self.x2))/(self.m1+self.m2)*(self.l1)) - self.g*math.sin(math.radians(self.x1))/self.l1
 
 class DuffingOscillator:
 
@@ -241,5 +241,8 @@ class DuffingOscillator:
         plt.show()
 
 
-t = DuffingOscillator(0,0,1,-1,1,0.3,0.2)
-t.solve(100, 100000)
+
+
+
+t = ElasticPendellum(0.5,0.02,9.8,1.5,4.3 ,0.03,7.3)
+t.solve(0.01, 100000)
