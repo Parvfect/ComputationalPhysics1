@@ -244,5 +244,6 @@ class DuffingOscillator:
 
 
 
-t = ElasticPendellum(0.5,0.02,9.8,1.5,4.3 ,0.03,7.3)
-t.solve(0.01, 100000)
+t = ElasticPendellum(4.5,0.02,9.8,1.5,3.4 ,0.03,7.3)
+#0.5 - 4.5   0.5 - 3.4
+t.solve(0.001, 1000000)
