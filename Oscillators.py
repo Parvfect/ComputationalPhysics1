@@ -172,16 +172,18 @@ class ElasticPendellum(SimplePendellum):
         '''
 
 class DoublePendellum():
-    l1 = l2 = 9.8
+    
     g = 9.8
     x1_arr = []
-    x1_arr = []
+    x2_arr = []
     y1_arr = []
     y2_arr = []
 
-    def __init__(self, m1, m2, x1, x2, y1, y2, z1=0, z2=0):
+    def __init__(self, m1, m2, l1, l2, x1, x2, y1, y2, z1=0, z2=0):
         self.m1 = m1
         self.m2 = m2
+        self.l1 = l1
+        self.l2 = l2
         self.x1 = x1
         self.x2 = x2
         self.y1 = y1
@@ -191,12 +193,68 @@ class DoublePendellum():
 
     def fz2(self):
         """Returns acceleration of x2 for time instant dt"""
-        return (self.l1*self.y1*self.y1*math.sin(math.radians(self.x1-self.x2)) 
-         - self.g*math.sin(self.x2) - self.l1*math.cos(math.radians(self.x1 - self.x2)))/self.l2
-
+        a = - self.l1 * self.z1 * np.cos(math.radians(self.x1 - self.x2))/self.l2
+        b = self.l1 * self.y1 * self.y1 * np.sin(math.radians(self.x1 - self.x2))/ self.l2
+        c = self.g * np.sin(math.radians(self.x2))/ self.l2
+        return (a + b + c)
+        
     def fz1(self):
         """Returns acceleration for x1 for time instant dt"""
-        return ((self.m2*self.l2*self.z2*math.cos(self.x1 - self.x2)) - self.m2*self.l2*self.z2*math.sin(math.radians(self.x1 - self.x2))/(self.m1+self.m2)*(self.l1)) - self.g*math.sin(math.radians(self.x1))/self.l1
+        a =   (self.m2 * self.l2 * self.x2 * np.cos(math.radians(self.x1 - self.x2)))/(self.l1*(self.m1+self.m2))
+        b =  -self.m2 * self.l2 * self.y2 * np.sin(math.radians(self.x1 - self.x2))/(self.l1*(self.m1+self.m2))
+        c =  self.g * np.sin(math.radians(self.x1))/ self.l1
+        return (a + b + c)
+       
+
+    def solve(self, dt, n):
+        """Solves the differential equation and plots it"""
+        #The time variables
+        t = 0
+        times = []
+
+        for i in range(n):
+
+            #Euler method for integrating over small time steps
+            self.z1 = self.fz1()
+            self.z2 = self.fz2()
+            self.y1 += self.z1 * dt
+            self.y2 += self.z2 * dt
+            self.x1 += self.y1 * dt
+            self.x2 += self.y2 * dt
+
+            #Appending into arrays
+            self.x1_arr.append(self.x1)
+            self.x2_arr.append(self.x2)
+            self.y1_arr.append(self.y1)
+            self.y2_arr.append(self.y2)
+            times.append(t)
+
+            #Increasing the time 
+            t += dt
+
+        #Position - time plot
+        plt.plot(times, self.x1_arr)
+        plt.xlabel("Times")
+        plt.ylabel("Coordinates of the  pendulum 1")
+        plt.show()
+
+        plt.plot(times, self.x2_arr)
+        plt.xlabel("Times")
+        plt.ylabel("Theta 2 ")
+        plt.show()
+
+        #Phase diagram plots
+        plt.plot(self.x1_arr, self.y1_arr)
+        plt.xlabel("Positions x1")
+        plt.ylabel("Velocity")
+        plt.show()
+
+
+        plt.plot(self.x2_arr, self.y2_arr)
+        plt.xlabel("Positions x2")
+        plt.ylabel("Velocity")
+        plt.show()
+
 
 class DuffingOscillator:
 
@@ -211,7 +269,7 @@ class DuffingOscillator:
         self.w = w
     
     def fz(self, t):
-        return self.g*math.cos(math.radians(self.w*t)) - (self.d*self.y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
+        return self.g*np.cos(math.radians(self.w*t)) - (self.d*self.y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
 
     def solve(self, dt, n):
         vels = []
@@ -243,7 +301,18 @@ class DuffingOscillator:
 
 
 
-
+"""
 t = ElasticPendellum(4.5,0.02,9.8,1.5,3.4 ,0.03,7.3)
 #0.5 - 4.5   0.5 - 3.4
 t.solve(0.001, 1000000)
+"""
+
+"""
+Orderly and not so chaotic
+t = DoublePendellum(2.5, 2.5, 9.8, 9.8, 0.3, 0.2, 0.002, 0.003)
+
+t.solve(0.01, 50000)
+"""
+
+t = DoublePendellum(2.5, 2.5, 7.6, 5.6, 0.34, 0.34, 0.03, 0.03)
+t.solve(0.01, 50000)
