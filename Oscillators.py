@@ -4,6 +4,18 @@ import math
 from matplotlib import animation
 
 
+"""Things to do ---- 
+
+1) Automate plot image save along with initial conditions 
+
+2) Double check duffing oscillator equations and result 
+
+3) Range kutta methods implementation
+
+"""
+
+
+
 def rounding(decimal_places, arr):
     """Takes in an array of values and rounds them to n digits"
         Because precision causes values to become infinity"""
