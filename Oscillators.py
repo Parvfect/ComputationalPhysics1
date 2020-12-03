@@ -2,11 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from matplotlib import animation
+import os
+from datetime import datetime
 
+#Creating a unique id for a specific execution so we can save the plots categorically
+path = os.getcwd()
 
 """Things to do ---- 
-
-1) Automate plot image save along with initial conditions 
 
 2) Double check duffing oscillator equations and result 
 
@@ -118,70 +120,86 @@ class ElasticPendellum(SimplePendellum):
     lengths = []
     v_lenghts = []
 
-    def __init__(self, theta, ang_velocity, initial_length, mass, stretch, v_length, spring_constant):
-        super().__init__(initial_length, theta, ang_velocity, mass)
+    def __init__(self, x1, y1, l0, m, x2, y2, spring_constant):
+        self.x1 = x1
+        self.y1 = y1
+        self.l0 = l0
+        self.m = m
         self.k = spring_constant
-        self.x = stretch
-        self.v_l = v_length
+        self.x2 = x2
+        self.y2 = y2
 
     
-    def f_theta(self):
-        return (-self.g*np.sin(math.radians(self.theta)) - 2*self.velocity*self.v_l) / self.length
+    def f_z1(self):
+        return (-self.g * np.sin(math.radians(self.x1)) - 2 * self.y1 * self.y2 ) / (self.l0 + self.x2)
 
-    def f_L(self):
-        return (self.mass*self.length*self.velocity**2 - self.k*(self.x) + self.mass*self.g*np.cos(math.radians(self.theta))) / self.mass
+    def f_z2(self):
+        return (self.m * (self.l0 + self.x2) * self.y1**2 - self.k * (self.x2) + self.m * self.g * np.cos(math.radians(self.x1))) / self.m
     
     def solve(self, dt, n):
 
+        now = datetime.now()
+        os.mkdir(path + "/Figures/ElasticPendulum/{}".format(now))
+        path_temp = path + "/Figures/ElasticPendulum/{}".format(now)
+
+        #Creating a text file with the initial conditions
+        file_name = path_temp + "/initial_conditions.txt"
+        f = open(file_name, "w")
+        f.write("x1 {}  x2 {} y1 {} y2 {} l0{} m{} k{}".format(self.x1, self.x2, self.y1, self.y2, self.l0, self.m, self.k))
+        f.close()
+
+        #Initializing the time variables
         times = []
         t = 0
         ang_vels = []
         vels = []
 
         for i in range(n):  
-            acceleration_theta = self.f_theta()
-            acceleration_length = self.f_L()
-            self.velocity += (acceleration_theta *dt)
-            self.v_l += acceleration_length*dt 
-            self.theta += self.velocity*dt
-            self.x += self.v_l*dt
-            self.positions.append(180*self.theta/3.14)
-            self.lengths.append(self.x)
-            vels.append(self.v_l)
-            ang_vels.append(self.velocity)
+            z1 = self.f_z1()
+            z2 = self.f_z2()
+            self.y1 += z1 *dt
+            self.y2 += z2 * dt 
+            self.x1 += self.y1 * dt
+            self.x2 += self.y2 * dt
+            self.positions.append(180*self.x1/3.14)
+            self.lengths.append(self.x2)
+            vels.append(self.y1)
+            ang_vels.append(self.y2)
 
             t+=dt
             times.append(t)
-        
-        moms = [self.mass*i for i in ang_vels]
 
-
-        '''
+        fig = plt.figure()
         plt.plot(times, self.positions)
         plt.xlabel("Time (s)")
         plt.ylabel("Theta (degrees)")
         plt.show()
-        
+        fig.savefig(path_temp + "/t_x1")
+
+
+        fig = plt.figure()
         plt.plot(times, self.lengths)
         plt.xlabel("Time (s)")
         plt.ylabel("Length of pendellum (x) ")
         plt.show()
-        '''
+        fig.savefig(path_temp + "/t_x2")
+        
+        
+        fig = plt.figure()
         plt.plot(self.positions, ang_vels)
         plt.xlabel("Theta (degrees)")
         plt.ylabel("Velocities")
         plt.show()
+        fig.savefig(path_temp + "/x1_y1")
 
+        
+        fig = plt.figure()
         plt.plot(self.lengths, vels)
         plt.xlabel("Lengths")
         plt.ylabel("Velocity of spring")
         plt.show()
-        '''
-        plt.plot(self.positions, moms)
-        plt.xlabel("Theta (degrees)")
-        plt.ylabel("Momentum")
-        plt.show()
-        '''
+        fig.savefig(path_temp + "/x2_y2")
+
 
 class DoublePendellum():
     
@@ -220,6 +238,16 @@ class DoublePendellum():
 
     def solve(self, dt, n):
         """Solves the differential equation and plots it"""
+        
+        now = datetime.now()
+        os.mkdir(path + "/Figures/DoublePendulum/{}".format(now))
+        path_temp = path + "/Figures/DoublePendulum/{}".format(now)
+
+        #Creating a text file with the initial conditions
+        file_name = path_temp + "/initial_conditions.txt"
+        f = open(file_name, "w")
+        f.write("x1 {}  x2 {} y1 {} y2 {} m1{} m2{} l1{} l2{} z1{} z2{}".format(self.x1, self.x2, self.y1, self.y2, self.m1, self.m2, self.l1, self.l2, self.z1, self.z2))
+        f.close()  
         #The time variables
         t = 0
         times = []
@@ -245,27 +273,35 @@ class DoublePendellum():
             t += dt
 
         #Position - time plot
+        fig = plt.figure()
         plt.plot(times, self.x1_arr)
         plt.xlabel("Times")
         plt.ylabel("Coordinates of the  pendulum 1")
         plt.show()
+        fig.savefig(path_temp + "/x1_t.png")
 
+        fig = plt.figure()
         plt.plot(times, self.x2_arr)
         plt.xlabel("Times")
         plt.ylabel("Theta 2 ")
         plt.show()
+        fig.savefig(path_temp + "/x2_t")
 
         #Phase diagram plots
+        fig = plt.figure()
         plt.plot(self.x1_arr, self.y1_arr)
         plt.xlabel("Positions x1")
         plt.ylabel("Velocity")
         plt.show()
+        fig.savefig(path_temp + "/x1_y1")
 
 
+        fig = plt.figure()
         plt.plot(self.x2_arr, self.y2_arr)
         plt.xlabel("Positions x2")
         plt.ylabel("Velocity")
         plt.show()
+        fig.savefig(path_temp + "/x2_y2")
 
 
 class DuffingOscillator:
@@ -284,10 +320,22 @@ class DuffingOscillator:
         return self.g*np.cos(math.radians(self.w*t)) - (self.d*self.y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
 
     def solve(self, dt, n):
+
+        now = datetime.now()
+        os.mkdir(path + "/Figures/DuffingOscillator/{}".format(now))
+        path_temp = path + "/Figures/DuffingOscillator/{}".format(now)
+
+        #Creating a text file with the initial conditions
+        file_name = path_temp + "/initial_conditions.txt"
+        f = open(file_name, "w")
+        f.write("Position {}  Velocity {} A {} B {} w{} g{} D{}".format(self.x, self.y, self.a, self.b, self.w, self.g, self.d))
+        f.close()
+
         vels = []
         times = []
         positions = []
         t = 0
+        
         for i in range(n):  
             self.z = self.fz(t)
             self.y += self.z*dt 
@@ -298,26 +346,23 @@ class DuffingOscillator:
             t+=dt
             times.append(t)
         
-        #moms = [self.mass*i for i in vels]
-
+        
+        fig = plt.figure()
         plt.plot(positions, vels)
-        #fig = plt.figure()
-       # anim = animation.FuncAnimation(fig, animate, init_func=init,
-       #                        frames=200, interval=20, blit=True)
+        plt.xlabel("Positions")
+        plt.ylabel("Velocities")
+        fig.savefig(path_temp + "/x_v")
         plt.show()
 
-
+        fig = plt.figure()
         plt.plot(times, positions)
+        plt.xlabel("Time")
+        plt.ylabel("Positions")
+        fig.savefig(path_temp + "/t_x")
         plt.show()
 
 
 
-
-"""
-t = ElasticPendellum(4.5,0.02,9.8,1.5,3.4 ,0.03,7.3)
-#0.5 - 4.5   0.5 - 3.4
-t.solve(0.001, 1000000)
-"""
 
 """
 Orderly and not so chaotic
@@ -325,6 +370,5 @@ t = DoublePendellum(2.5, 2.5, 9.8, 9.8, 0.3, 0.2, 0.002, 0.003)
 
 t.solve(0.01, 50000)
 """
-
-t = DoublePendellum(2.5, 2.5, 7.6, 5.6, 0.34, 0.34, 0.03, 0.03)
-t.solve(0.01, 50000)
+t = DuffingOscillator(0.1, 0.02, 0.3, 0.5, 0.3, 9.8, 0.4)
+t.solve(0.01, 10000)
