@@ -10,9 +10,11 @@ path = os.getcwd()
 
 """Things to do ---- 
 
-2) Double check duffing oscillator equations and result 
+1) Range kutta methods for double pendulum
 
-3) Range kutta methods implementation
+2) Elastic Pendulum equation check
+
+3) Create test file
 
 """
 
@@ -133,10 +135,10 @@ class ElasticPendellum(SimplePendellum):
 
     
     def f_z1(self, y):
-        return (-self.g * np.sin(math.radians(self.x1)) - 2 * y * self.y2 ) / (self.l0 + self.x2)
+        return (-self.g * np.sin(math.radians(self.x1)) - 2 * self.y2 * y ) / (self.l0 + self.x2)
 
     def f_z2(self, y):
-        return (self.m * (self.l0 + self.x2) * y**2 - self.k * (self.x2) + self.m * self.g * np.cos(math.radians(self.x1))) / self.m
+        return (self.m * (self.l0 + self.x2) * self.y1**2 - self.k * (self.x2) + self.m * self.g * np.cos(math.radians(self.x1))) / self.m
     
     def runge_kutta(self, func, h, y):
         """Solves using the fifth order range kutta method"""
@@ -350,10 +352,22 @@ class DuffingOscillator:
         self.d = d
         self.w = w
     
-    def fz(self, t):
-        return self.g*np.cos(math.radians(self.w*t)) - (self.d*self.y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
+    def fz(self, t, y):
+        return self.g*np.cos(math.radians(self.w*t)) - (self.d*y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
 
-    def solve(self, dt, n):
+    def runge_kutta(self, func, t, y, h):
+        """Solves using the fifth order range kutta method"""
+        #Rememeber that y is just the input that you are feeding 
+        
+        k1 = func(t, y)
+        k2 = func(t+ h/2, y + h*k1/2)
+        k3 = func(t + h/2, y + h*k2/2)
+        k4 = func(t+ h/2, y + h*k3/2)
+        k5 = func(t + h, y + h*k4)
+        
+        return (k1 + k2 + k3 + k4 + k5)/5
+        
+    def solve(self, dt, n, type):
 
         now = datetime.now()
         os.mkdir(path + "/Figures/DuffingOscillator/{}".format(now))
@@ -370,17 +384,30 @@ class DuffingOscillator:
         positions = []
         t = 0
         
-        for i in range(n):  
-            self.z = self.fz(t)
-            self.y += self.z*dt 
-            self.x += self.y*dt
-            positions.append(self.x)
-            vels.append(self.y)
+        if type == 1:
 
-            t+=dt
-            times.append(t)
-        
-        
+            for i in range(n):  
+                self.z = self.fz(t, self.y)
+                self.y += self.z*dt 
+                self.x += self.y*dt
+                positions.append(self.x)
+                vels.append(self.y)
+
+                t+=dt
+                times.append(t)
+            
+        else:
+
+            for i in range(n):  
+                self.z = self.runge_kutta(self.fz, t, self.y, 0.0001)
+                self.y += self.z*dt 
+                self.x += self.y*dt
+                positions.append(self.x)
+                vels.append(self.y)
+
+                t+=dt
+                times.append(t)
+            
         fig = plt.figure()
         plt.plot(positions, vels)
         plt.xlabel("Positions")
@@ -405,9 +432,12 @@ t = DoublePendellum(2.5, 2.5, 9.8, 9.8, 0.3, 0.2, 0.002, 0.003)
 t.solve(0.01, 50000)
 """
 """
-t = DuffingOscillator(0.1, 0.02, 0.3, 0.5, 0.3, 9.8, 0.4)
-t.solve(0.01, 10000)
-"""
+t = DuffingOscillator(0.1, 0.02, 1, 5, 0.5, 8, 0.02)
+t.solve(0.01, 10000, 2)
 
-t = ElasticPendellum(0.003, 0.001, 9.8, 2.5, 0.1, 0.01, 8.5)
-t.solve(0.001, 10000, 1)
+
+"""
+"""
+t = ElasticPendellum(0.003, 0.001, 4.8, 1.5, 0.1, 0.01, 8.5)
+t.solve(0.001, 100000, 2)
+"""
