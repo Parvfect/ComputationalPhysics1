@@ -10,12 +10,13 @@ path = os.getcwd()
 
 """Things to do ---- 
 
-1) Range kutta methods for double pendulum
+1) Fix Double pendi overflow error
 
 2) Elastic Pendulum equation check
 
 3) Create test file
 
+4) Is a runge kutta just changing the output variable or all..?
 """
 
 
@@ -57,7 +58,7 @@ class SimpleHarmonicOscillator:
         
         t = 0
         for i in range(n):
-            acceleration = -(self.frequency*self.frequency*self.position) - (2*damp_coeff*self.frequency*self.velocity) + driving_force*math.sin(math.radians(driving_frequency*t))/self.mass
+            acceleration = -(self.frequency*self.frequency*self.position) - (2*damp_coeff*self.frequency*self.velocity) + driving_force*np.sin(np.radians(driving_frequency*t))/self.mass
             self.velocity += acceleration*dt
             self.position += self.velocity*dt
             t += dt
@@ -69,7 +70,7 @@ class SimpleHarmonicOscillator:
     def duffing_oscillator(self, gamma, driving_frequency, delta, alpha, beta, dt, n):
         t = 0
         for i in range(n):
-            acceleration = gamma* math.cos(math.radians(driving_frequency*t)) - delta * self.velocity - alpha*self.position - beta* self.position*self.position
+            acceleration = gamma* np.cos(np.radians(driving_frequency*t)) - delta * self.velocity - alpha*self.position - beta* self.position*self.position
             self.velocity += acceleration*dt
             self.position += self.velocity*dt
             t += dt
@@ -93,13 +94,13 @@ class SimplePendellum:
         self.velocity = velocity
         self.acceleration = 0
         self.mass = mass
-        self.frequency = (1/(2*3.14))*(math.sqrt(self.g/self.length))
+        self.frequency = (1/(2*3.14))*(np.sqrt(self.g/self.length))
         
     def euler_step(self, dt, n):
         """Iterates through to calculate a solution to the differential equation"""
         
         for i in range(n):
-            self.velocity += (-self.g*math.sin(math.radians(self.theta))/self.length)*dt
+            self.velocity += (-self.g*np.sin(np.radians(self.theta))/self.length)*dt
             self.theta += self.velocity*dt
             self.positions.append(self.theta)
         
@@ -111,7 +112,7 @@ class SimplePendellum:
     """def euler_step_damped(self, dt, n ,dc):
 
         for i in range(n):
-                self.velocity += (-self.g*math.sin(math.radians(self.theta))/self.length)*dt
+                self.velocity += (-self.g*np.sin(np.radians(self.theta))/self.length)*dt
                 self.theta += self.velocity*dt
                 self.positions.append(self.theta)
             
@@ -135,10 +136,10 @@ class ElasticPendellum(SimplePendellum):
 
     
     def f_z1(self, y):
-        return (-self.g * np.sin(math.radians(self.x1)) - 2 * self.y2 * y ) / (self.l0 + self.x2)
+        return (-self.g * np.sin(self.x1) - 2 * self.y2 * y ) / (self.l0 + self.x2)
 
     def f_z2(self, y):
-        return (self.m * (self.l0 + self.x2) * self.y1**2 - self.k * (self.x2) + self.m * self.g * np.cos(math.radians(self.x1))) / self.m
+        return (self.m * (self.l0 + self.x2) * self.y1**2 - self.k * (self.x2) + self.m * self.g * np.cos(self.x1)) / self.m   
     
     def runge_kutta(self, func, h, y):
         """Solves using the fifth order range kutta method"""
@@ -257,22 +258,50 @@ class DoublePendellum():
         self.z1 = z1
         self.z2 = z2
 
-    def fz2(self):
+    def runge_kutta(self, func, y, h):
+        """Solves using the fifth order range kutta method"""
+        #Rememeber that y is just the input that you are feeding 
+        
+        k1 = func(y)
+        k2 = func(y + h*k1/2)
+        k3 = func(y + h*k2/2)
+        k4 = func(y + h*k3/2)
+        k5 = func(y + h*k4)
+        
+        return (k1 + k2 + k3 + k4 + k5)/5
+        
+    def first_order_fz1(self, y):
+        
+        a = -self.g * (2 * self.m1 * self.m2) * np.sin(self.x1)
+        b = - self.m2 * self.g * np.sin(self.x1 - 2 * self.x2)
+        c = - 2 * np.sin(self.x1 - self.x2) * self.m2 * (self.y2**2 * self.l2 + y**2 * self.l1 * np.cos(self.x1 - self.x2))           
+        d = self.l1 * (2* self.m1 + self.m2 - self.m2 * np.cos(2 * self.x1 - 2* self.x2))
+        return (a + b + c)/d
+
+    def first_order_fz2(self, y):
+        
+        a = 2 * np.sin(self.x1 - self.x2) * (self.y1**2 * self.l1 * (self.m1 + self.m2))
+        b = self.g * (self.m1 + self.m2) * np.cos(self.x1)
+        c = y**2 * self.l2 * self.m2 * np.cos(self.x1 - self.x2)
+        d = self.l2 * (2 * self.m1 + self.m2 - self.m2 * np.cos(2 * (self.x1 - self.x2)))
+        return (a + b + c)/d
+
+    def fz2(self, y):
         """Returns acceleration of x2 for time instant dt"""
-        a = - self.l1 * self.z1 * np.cos(math.radians(self.x1 - self.x2))/self.l2
-        b = self.l1 * self.y1 * self.y1 * np.sin(math.radians(self.x1 - self.x2))/ self.l2
-        c = self.g * np.sin(math.radians(self.x2))/ self.l2
+        a = - self.l1 * self.z1 * np.cos(self.x1 - self.x2)/self.l2
+        b = self.l1 * self.y1 * self.y1 * np.sin(self.x1 - self.x2)/ self.l2
+        c = -self.g * np.sin(self.x2)/ self.l2
         return (a + b + c)
         
-    def fz1(self):
+    def fz1(self, y):
         """Returns acceleration for x1 for time instant dt"""
-        a =   (self.m2 * self.l2 * self.x2 * np.cos(math.radians(self.x1 - self.x2)))/(self.l1*(self.m1+self.m2))
-        b =  -self.m2 * self.l2 * self.y2 * np.sin(math.radians(self.x1 - self.x2))/(self.l1*(self.m1+self.m2))
-        c =  self.g * np.sin(math.radians(self.x1))/ self.l1
+        a =   -(self.m2 * self.l2 * self.x2 * np.cos(self.x1 - self.x2))/(self.l1*(self.m1+self.m2))
+        b =  -self.m2 * self.l2 * self.y2 * np.sin(self.x1 - self.x2)/(self.l1*(self.m1+self.m2))
+        c =  -self.g * np.sin(self.x1)/ self.l1
         return (a + b + c)
        
 
-    def solve(self, dt, n):
+    def solve(self, dt, n, type):
         """Solves the differential equation and plots it"""
         
         now = datetime.now()
@@ -288,25 +317,47 @@ class DoublePendellum():
         t = 0
         times = []
 
-        for i in range(n):
+        if type == 1:
+            for i in range(n):
 
-            #Euler method for integrating over small time steps
-            self.z1 = self.fz1()
-            self.z2 = self.fz2()
-            self.y1 += self.z1 * dt
-            self.y2 += self.z2 * dt
-            self.x1 += self.y1 * dt
-            self.x2 += self.y2 * dt
+                #Euler method for integrating over small time steps
+                self.z1 = self.fz1(self.y1)
+                self.z2 = self.fz2(self.y2)
+                self.y1 += self.z1 * dt
+                self.y2 += self.z2 * dt
+                self.x1 += self.y1 * dt
+                self.x2 += self.y2 * dt
 
-            #Appending into arrays
-            self.x1_arr.append(self.x1)
-            self.x2_arr.append(self.x2)
-            self.y1_arr.append(self.y1)
-            self.y2_arr.append(self.y2)
-            times.append(t)
+                #Appending into arrays
+                self.x1_arr.append(self.x1)
+                self.x2_arr.append(self.x2)
+                self.y1_arr.append(self.y1)
+                self.y2_arr.append(self.y2)
+                times.append(t)
 
-            #Increasing the time 
-            t += dt
+                #Increasing the time 
+                t += dt
+        else:
+            for i in range(n):
+
+                #Runge kutta method for integrating over small time steps
+                self.z1 = self.runge_kutta(self.first_order_fz1, self.y1, 0.001)
+                self.z2 = self.runge_kutta(self.first_order_fz2, self.y2, 0.001)
+                self.y1 += self.z1 * dt
+                self.y2 += self.z2 * dt
+                self.x1 += self.y1 * dt
+                self.x2 += self.y2 * dt
+
+                #Appending into arrays
+                self.x1_arr.append(self.x1)
+                self.x2_arr.append(self.x2)
+                self.y1_arr.append(self.y1)
+                self.y2_arr.append(self.y2)
+                times.append(t)
+
+                #Increasing the time 
+                t += dt
+        
 
         #Position - time plot
         fig = plt.figure()
@@ -353,7 +404,7 @@ class DuffingOscillator:
         self.w = w
     
     def fz(self, t, y):
-        return self.g*np.cos(math.radians(self.w*t)) - (self.d*y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
+        return self.g*np.cos(self.w*t) - (self.d*y) - (self.a*self.x) - (self.b*self.x*self.x*self.x)
 
     def runge_kutta(self, func, t, y, h):
         """Solves using the fifth order range kutta method"""
@@ -427,17 +478,23 @@ class DuffingOscillator:
 
 """
 Orderly and not so chaotic
-t = DoublePendellum(2.5, 2.5, 9.8, 9.8, 0.3, 0.2, 0.002, 0.003)
-
-t.solve(0.01, 50000)
 """
+
+""""
+t = DoublePendellum(2.5, 2.5, 4.8, 4.8, 0.03, 0.02, 0.002, 0.003)
+
+t.solve(0.01, 10000, 2)
+"""
+"""
+"""
+
 """
 t = DuffingOscillator(0.1, 0.02, 1, 5, 0.5, 8, 0.02)
-t.solve(0.01, 10000, 2)
-
-
+t.solve(0.01, 50000, 1)
 """
+
+
 """
 t = ElasticPendellum(0.003, 0.001, 4.8, 1.5, 0.1, 0.01, 8.5)
-t.solve(0.001, 100000, 2)
+t.solve(0.001, 500000, 2)
 """
