@@ -1,7 +1,7 @@
 import XCTest
 
-import week2Tests
+import DecWorkTests
 
 var tests = [XCTestCaseEntry]()
-tests += week2Tests.allTests()
+tests += DecWorkTests.allTests()
 XCTMain(tests)

@@ -4,6 +4,7 @@ import math
 from matplotlib import animation
 import os
 from datetime import datetime
+import numerical_integration as ode
 
 #Creating a unique id for a specific execution so we can save the plots categorically
 path = os.getcwd()
@@ -96,23 +97,29 @@ class SimplePendellum:
         self.mass = mass
         self.frequency = (1/(2*3.14))*(np.sqrt(self.g/self.length))
         
-    def euler_step(self, dt, n):
+    def f_z(self):
+        return (-self.g*np.sin(np.radians(self.theta))/self.length)
+
+    def solve(self, dt, n):
         """Iterates through to calculate a solution to the differential equation"""
         
         for i in range(n):
-            self.velocity += (-self.g*np.sin(np.radians(self.theta))/self.length)*dt
-            self.theta += self.velocity*dt
+            self.velocity, self.theta = ode.euler_adaptive_step(self.f_z, self.velocity, self.theta, dt, 0.01) 
             self.positions.append(self.theta)
+            self.velocities.append(self.velocity)
         
         plt.plot(self.positions)
+        plt.show()
+        
         plt.show()
 
 
 
     """def euler_step_damped(self, dt, n ,dc):
-
+        plt.plot(self.positions, self.velocities)
         for i in range(n):
                 self.velocity += (-self.g*np.sin(np.radians(self.theta))/self.length)*dt
+
                 self.theta += self.velocity*dt
                 self.positions.append(self.theta)
             
@@ -494,7 +501,6 @@ t.solve(0.01, 50000, 1)
 """
 
 
-"""
-t = ElasticPendellum(0.003, 0.001, 4.8, 1.5, 0.1, 0.01, 8.5)
-t.solve(0.001, 500000, 2)
-"""
+
+t = ElasticPendellum(0.003, 0.1, 4.8, 1.5, 0.1, 0.01, 8.5)
+t.solve(0.001, 8000, 2)

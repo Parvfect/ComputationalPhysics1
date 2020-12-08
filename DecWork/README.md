@@ -1,3 +1,3 @@
-# week2
+# DecWork
 
 A description of this package.
