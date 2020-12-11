@@ -54,5 +54,5 @@ public struct DuffingOscillator{
             times.append(t)
         }
     
-        return positions, vels
+        return (x_arr, y_arr)
     }

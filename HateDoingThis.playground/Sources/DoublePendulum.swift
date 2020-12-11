@@ -28,21 +28,23 @@ public struct DoublePendellum{
         return (k1 + 2 * k2 + 2 * k3 + k4) / 6
     }
     
-    func fz2(y:Double) -> Double{
-    
-        a = - self.l1 * self.z1 * cos(self.x1 - self.x2)/self.l2
-        b = self.l1 * self.y1 * self.y1 * sin(self.x1 - self.x2)/ self.l2
-        c = -self.g * sin(self.x2)/ self.l2
-        return (a + b + c)
-    }
     
     func fz1(y:Double) -> Double{
     
-        a =   -(self.m2 * self.l2 * self.x2 * cos(self.x1 - self.x2))/(self.l1*(self.m1+self.m2))
-        b =  -self.m2 * self.l2 * self.y2 * sin(self.x1 - self.x2)/(self.l1*(self.m1+self.m2))
-        c =  -self.g * sin(self.x1)/ self.l1
+        a =  - (self.m2 * self.l2 * self.z2 * cos(self.x1 - self.x2)) / (self.l1 * (self.m1 + self.m2))
+        b =  - self.m2 * self.l2 * self.y2 * self.y2 * sin(self.x1 - self.x2) / (self.l1 * (self.m1 + self.m2))
+        c =  - self.g * sin(self.x1) / self.l1
         return (a + b + c)
     }
+
+    func fz2(y:Double) -> Double{
+    
+        a = - self.l1 * self.z1 * cos(self.x1 - self.x2) / self.l2
+        b = self.l1 * self.y1 * self.y1 * sin(self.x1 - self.x2)/ self.l2
+        c = - self.g * sin(self.x2)/ self.l2
+        return (a + b + c)
+    }
+    
     
     func solve(dt:Double, n:Int, type:Int) -> ([Double],[Double],[Double],[Double]){
    
@@ -79,7 +81,7 @@ public struct DoublePendellum{
 
             t += dt
 
-        return x1_arr, y1_arr, x2_arr, y2_arr
+        return (x1_arr, y1_arr, x2_arr, y2_arr)
     }
 }
 

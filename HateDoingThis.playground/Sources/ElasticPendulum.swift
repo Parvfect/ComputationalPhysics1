@@ -40,19 +40,19 @@ public struct ElasticPendellum{
     
     /**Returns the acceleration of the first generalised coordinate (change in theta made with vertical) */
     private func fz1(y:Double) -> Double {
-        let g_factor =  -self.g * sin(self.x1)
-        let v_factor =  2 * y * self.y2
-        return (g_factor - v_factor / (self.length + self.x2))
+        let g_factor =  - self.g * sin(self.x1)
+        let v_factor =  - 2 * y * self.y2
+        return (g_factor + v_factor / (self.length + self.x2))
     }
     
     
     /**Returns the acceleration of the second generalised coordinate (change in length of spring) */
     private func fz2() -> Double {
-        let v_factor = self.m * (self.length + self.x2) * self.y1 * self.y1
-        let k_factor = self.k * (self.x2)
-        let g_factor = self.m * self.g * cos(self.x1)
+        let v_factor = (self.length + self.x2) * self.y1 * self.y1
+        let k_factor = - self.k * (self.x2) / self.m
+        let g_factor = self.g * cos(self.x1)
         
-        return ((v_factor - k_factor + g_factor) / self.m)
+        return (v_factor + k_factor + g_factor) 
         
     }
     
@@ -62,10 +62,10 @@ public struct ElasticPendellum{
         
         /** Creating arrays to hold data regarding the positions, velocities and time of the generalised coordinates */
         var times: [Double] = []
-        var x1: [Double] = []
-        var x2: [Double] = []
-        var y1: [Double] = []
-        var y2: [Double] = []
+        var x1_arr: [Double] = []
+        var x2_arr: [Double] = []
+        var y1_arr: [Double] = []
+        var y2_arr: [Double] = []
         
         /**Initializing the time variable */
         var t = 0.0
@@ -95,12 +95,12 @@ public struct ElasticPendellum{
             self.x2 += self.y2 * dt
             
             /** Appending the angle in the array in degrees */
-            x1.append(self.x1 * 3.14 / 180)
+            x1_arr.append(self.x1 * 3.14 / 180)
             
             /** Appending the positions and velocities of the generalised coordinates to the arrays */
-            x2.append(self.x2)
-            y1.append(self.y1 * self.m)
-            y2.append(self.y2 * self.m)
+            x2_arr.append(self.x2)
+            y1_arr.append(self.y1 * self.m)
+            y2_arr.append(self.y2 * self.m)
             
             /** Updating the time of the system */
             t+=dt
@@ -111,7 +111,7 @@ public struct ElasticPendellum{
         }
         
         /** Returning the data for analysis */
-        return (y1, y2, x1, x2)
+        return (x1_arr, x2_arr, y1_arr, y2_arr)
         
     }
 }
