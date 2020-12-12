@@ -9,14 +9,14 @@ public struct DuffingOscillator{
     var z:Double
     
     /* Constants that impact the duffing oscillator
-     * a - linear stiffness
-     * b - amount of non linearity in restoring force
-     * w - angular frequency of the driving force
-     * d - controls the amount of damping
-     * g - amplitude of periodic driving force
+    * a - linear stiffness
+    * b - amount of non linearity in restoring force
+    * w - angular frequency of the driving force
+    * d - controls the amount of damping
+    * g - amplitude of periodic driving force
      
      Taken from (https://en.wikipedia.org/wiki/Duffing_equation) */
-    
+   
     var a:Double
     var b:Double
     var w:Double
@@ -56,20 +56,20 @@ public struct DuffingOscillator{
     }
     
     /** Solves the damping equation by integrating it over time steps dt.
-     * Uses two methods type 1 = euler, type 2 = runge kutta */
+    * Uses two methods type 1 = euler, type 2 = runge kutta */
     public mutating func solve(dt:Double, n:Int, type:Int) -> ([Double], [Double]) {
         
         /** Arrays for storing the data */
         var x_arr:[Double] = []
         var y_arr:[Double] = []
-        
+       
         /** Initializing the time of the system */
         var t = 0.0
         
         for _ in 0...n{
             
             /** Checking if the user wants euler or runge kutta method
-             Obtaining the acceleration of the time step from fz */
+                Obtaining the acceleration of the time step from fz */
             if type == 1 {
                 self.z = self.fz(t:t, y:self.y)
             }
