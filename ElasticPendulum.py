@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-import numpy as np
-
-
+import numpy as np 
+import numerical_integration as ode
 
 class ElasticPendi:
 
@@ -92,9 +91,9 @@ class ElasticPendi:
             h = 2 * h
 
 
+    
 
-
-    def solve(self, steps, dt):
+    def solve(self, steps, dt, type):
         
 
         y_arr = [[],[],[],[]]
@@ -103,8 +102,17 @@ class ElasticPendi:
 
         for i in range(steps):
 
-            self.y += self.runge_kutta(self.y, t, dt)
-           
+            if type == 1:
+                self.y += ode.runge_kutta(self.fz, self.y, t, dt)
+            elif type == 2:
+                self.y += ode.euler(self.fz, self.y, t, dt)
+            elif type == 3:
+                val, dt = ode.runge_kutta_adaptive_stepper(self.fz, self.y,t, dt)
+                self.y += val
+            else:
+                val, dt = ode.euler_adaptive_step(self.fz, self.y,t, dt)
+                self.y += val
+            
             #Appending into arrays
             y_arr[0].append(self.y[0])
             y_arr[1].append(self.y[1])
@@ -129,4 +137,4 @@ class ElasticPendi:
 
 
 t = ElasticPendi(0.3, 0.02, 0.5, 0.1, 2.5, 4.3, 6.5, 9.8)
-t.solve(10000, 0.01)
+t.solve(1000000, 0.0001, 3)

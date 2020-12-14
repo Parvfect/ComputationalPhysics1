@@ -1,35 +1,35 @@
-"""
+/**
 Numerical integration methods 
 
 Euler, adaptive stepping euler, RK4, and adaptive stepping RK4
 
-"""
+*/
 
-import numpy as np
+func euler(function: function(Double, Double) -> ([Double]), y:Double, t:Double, dt:Double){
 
-def euler(function, y, t, dt):
+  return dt * function(y,t)
 
-    return dt * function(y,t)
+}
 
-def euler_adaptive_step(function, y, t, dt):
+func euler_adaptive_step(function: function(Double, Double) -> ([Double]), y:Double, t:Double, dt:Double){
 
-    h = dt 
-    # Fixed step size
-    h_fixed = 0.01
-    h_min = 0.0001
+    var h = dt 
 
-    # Normal step value 
-    step = 0
+    /** Fixed step values */
+    var h_fixed = 0.01
+    var h_min = 0.0001
+
+    var step = 0.0
 
     # Half step value 
-    half_step = 0
+    var half_step = 0.0
 
-    #Double step value
+    /** Double step value */
     double_step = 0
 
-    #Tolerable difference ranges 
-    dx_min = np.array([0.008,0.008,0.008,0.008])
-    dx_max = np.array([0.01,0.01,0.01,0.01])
+    /** Tolerable difference ranges */ 
+    dx_min = [0.008,0.008,0.008,0.008]
+    dx_max = [0.01,0.01,0.01,0.01]
 
     step =  dt * function(y, t + dt) 
     half_step =  dt/2 * function(y, t + dt/2)
