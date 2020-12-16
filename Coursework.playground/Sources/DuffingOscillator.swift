@@ -3,8 +3,8 @@ import Foundation
 public struct DuffingOscillator{
     
     
-    /** x - position , y - first derivative of position with respect to time, z = second derivative with respect to time */
-    var y: [Double] = [0.0, 0.0, 0.0]
+    /** x - position , y - first derivative of position with respect to time */
+    var y: [Double] = [0.0, 0.0]
     
     /* Constants that impact the duffing oscillator
     * a - linear stiffness
@@ -26,10 +26,6 @@ public struct DuffingOscillator{
         
         self.y[0] = x
         self.y[1] = y
-        
-        /** Starting off acceleration at 0 */
-        self.y[2] = 0.0
-        
         self.a = a
         self.b = b
         self.d = d
@@ -37,7 +33,7 @@ public struct DuffingOscillator{
         self.g = g
     }
     
-    /** Returns the acceleration for time step dt */
+    /** Returns the updated array based on the derivatives for time step dt */
     private func fz(y:[Double], t:Double) -> [Double]{
         
         let y1 = ((self.g * cos(self.w * t)) - (self.d * y[1]) - (self.a * self.y[0]) - (self.b * y[0] * y[0] * y[0]))
@@ -46,8 +42,9 @@ public struct DuffingOscillator{
     }
     
    
-    /** Solves the damping equation by integrating it over time steps dt.
-    * Uses two methods type 1 = euler, type 2 = runge kutta */
+    /** Solves the differential equation using the integration methods in numerical_integration.
+     type = 1 - RK4,  2 - Euler,  3 - RK4(Adaptive Step),  4 - Euler(Adaptive Step)
+     Returns the positions and velocites of the generalised coordinates for (dt * n) time period */
     public mutating func solve(dt:Double, n:Int, type:Int) -> ([Double], [Double]){
         
         /** Creating arrays to hold data regarding the positions, velocities of the generalised coordinates */
@@ -62,40 +59,40 @@ public struct DuffingOscillator{
         /** Integrating the equation from 0 to n steps, with a time step of dt */
         for _ in 0...n{
             
-            /**Getting the value for the acceleration of the generalised coordinates in dt */
-            
-            /** Switching between euler and runge kutta method */
+            /** Updating value of the generalised coordinates in the time step dt */
             if type == 1{
-                self.y += runge_kutta(function: self.fz, y: self.y, t: t, dt: dt)
+                self.y = self.y + runge_kutta(function: self.fz, y: self.y, t: t, dt: dt)
             }
                 
-                /** else if type == 2{
-                 self.y += euler(function: self.fz, y: self.y, t: t, dt: dt)
-                 }
-                 */
+            else if type == 2{
+                self.y = self.y + euler(function: self.fz, y: self.y, t: t, dt: dt)
+            }
+                
             else if type == 3{
                 let val = runge_kutta_adaptive_stepper(function: self.fz, y: self.y, t: t, dt: dt)
-                self.y += val.0
+                self.y = self.y + val.0
+                
+                /** Updating the step size */
                 dt = val.1
             }
                 
             else if type == 4{
                 let val = euler_adaptive_step(function: self.fz, y: self.y, t: t, dt: dt)
-                self.y += val.0
+                self.y = self.y + val.0
+                
+                /** Updating the step size */
                 dt = val.1
             }
-            
             
             
             /** Appending the angle in the array in degrees */
             x1.append(self.y[0] * 3.14 / 180)
             
-            /** Appending the positions and velocities of the generalised coordinates to the arrays */
+            /** Appending the velocity of the generalised coordinate to the array */
             y1.append(self.y[1])
             
             /** Updating the time of the system */
             t += dt
-            
             
         }
         

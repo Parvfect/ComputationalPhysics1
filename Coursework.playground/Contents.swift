@@ -1,12 +1,36 @@
 import UIKit
 
-var t = DoublePendellum(m1:2.5 , m2:2.5, l1:3.2, l2:2.7, x1:0.3, x2:0.4, y1:0.002, y2:0.003)
-var x = t.solve(dt: 0.001, n: 10000, type: 1)
-for i in x.0{
-    i
+var elasticPend = ElasticPendulumTests()
+var doublePend = DoublePendulumTests()
+//var duffingOsc = DuffingOscialltorTests()
+
+public func display_values(arr:([Double], [Double], [Double], [Double])){
+
+    for i in arr.0{
+        print(i)
+    }
+    
+    for i in arr.1{
+        print(i)
+    }
+    
+    for i in arr.2{
+        print(i)
+    }
+    
+    for i in arr.3{
+        print(i)
+    }
+    
 }
 
-for i in x.1 {
-    i
-}
+display_values(arr: elasticPend.0)
+display_values(arr: elasticPend.1)
 
+display_values(arr: doublePend.0)
+display_values(arr: doublePend.1)
+
+/**
+display_values(arr: duffingOsc.0)
+display_values(arr: duffingOsc.1)
+*/
