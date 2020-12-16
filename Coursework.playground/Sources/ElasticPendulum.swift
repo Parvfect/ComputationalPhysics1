@@ -3,16 +3,23 @@ import Foundation
 
 public struct ElasticPendellum{
     
-    var length:Double
+    /** System Variables
+        l - length of the spring of the pendulum
+        y - array that holds the generalised coordinates positions and velocities
+        g - acceleration due to gravity
+        m - mass of the bob
+        k - Spring constant of the spring */
+ 
+    var l:Double
     var y = [0.0, 0.0, 0.0, 0.0]
     var g = 9.8
     var m:Double
     var k:Double
     
     /**Initialises the data members */
-    public init(length:Double, x1:Double, y1:Double, x2:Double, y2:Double, mass:Double, spring_constant:Double){
+    public init(l:Double, x1:Double, y1:Double, x2:Double, y2:Double, mass:Double, spring_constant:Double){
         
-        self.length = length
+        self.l = l
         self.y[0] = x1
         self.y[1] = x2
         self.y[2] = y1
@@ -22,12 +29,16 @@ public struct ElasticPendellum{
    }
     
     
-    
+    /** Function that returns the updated array based on the derivatives of the time step dt */
     private func fz(y:[Double], t:Double) -> ([Double]){
         
-        let y12 = (-self.g * sin(y[0]) - 2 * y[3] * y[2] ) / (self.length + y[2])
-        let y22 = (self.length + y[1]) * y[2] * y[2] - (self.k * (y[1]) / self.m)  +  self.g * cos(y[0])
+        /** Second derivative of first generalised coordinate */
+        let y12 = (-self.g * sin(y[0]) - 2 * y[3] * y[2] ) / (self.l + y[2])
         
+        /** Second derivative of second generalised coordinate */
+        let y22 = (self.l + y[1]) * y[2] * y[2] - (self.k * (y[1]) / self.m)  +  self.g * cos(y[0])
+        
+        /** Returns the array derivative */
         return [y[2], y[3], y12, y22]
     }
     
@@ -50,26 +61,28 @@ public struct ElasticPendellum{
         /** Integrating the equation from 0 to n steps, with a time step of dt */
         for _ in 0...n{
             
-            /**Getting the value for the acceleration of the generalised coordinates in dt */
-            
-            /** Switching between euler and runge kutta method */
+            /** Updating the array value for the generalised coordinates in the time step dt */
             if type == 1{
-                self.y += runge_kutta(function: self.fz, y: self.y, t: t, dt: dt)
+                self.y = self.y + runge_kutta(function: self.fz, y: self.y, t: t, dt: dt)
             }
             
-           /** else if type == 2{
-                self.y += euler(function: self.fz, y: self.y, t: t, dt: dt)
+           else if type == 2{
+                self.y = self.y + euler(function: self.fz, y: self.y, t: t, dt: dt)
             }
-            */
+                
             else if type == 3{
                 let val = runge_kutta_adaptive_stepper(function: self.fz, y: self.y, t: t, dt: dt)
-                self.y += val.0
+                self.y = self.y + val.0
+                
+                /** Updating the step size */
                 dt = val.1
             }
             
             else if type == 4{
                 let val = euler_adaptive_step(function: self.fz, y: self.y, t: t, dt: dt)
-                self.y += val.0
+                self.y = self.y + val.0
+                
+                /** Updating the step size */
                 dt = val.1
             }
             

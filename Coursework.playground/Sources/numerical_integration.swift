@@ -10,6 +10,7 @@ func euler(function: ([Double], Double) -> ([Double]), y:[Double], t:Double, dt:
     return dt * function(y,t)
 }
 
+/** Take two half steps and compare their difference with a full step. Reduce the step size if difference is greater than dx_max **/
 func euler_adaptive_step(function: ([Double], Double) -> ([Double]), y:[Double], t:Double, dt:Double) -> ([Double], Double){
 
     var h = dt 
@@ -47,13 +48,16 @@ func euler_adaptive_step(function: ([Double], Double) -> ([Double]), y:[Double],
 func runge_kutta(function: ([Double], Double) -> ([Double]), y:[Double], t:Double, dt:Double) -> ([Double]){
     
     let k1 = function(y,t)
-    let k2 = function(y + 0.5 * k1 * dt, t + 0.5 * dt)
-    let k3 = function(y + 0.5 * k2 * dt, t + 0.5 * dt)
-    let k4 = function(y + k3 * dt, t + dt)
-
-    return dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+    let k2 = function(y + (dt * 0.5) * k1, t + 0.5 * dt)
+    let k3 = function(y + 0.5 * dt * k2, t + 0.5 * dt)
+    let k4 = function(y + dt * k3, t + dt)
+    
+    return dt * (k1 + (2 * k2) + (2 * k3) + k4) / 6
 }
 
+/** Take a half step, a full step and a double step.
+    If the difference between double step and single step is below dx_min double the step size
+    If the difference between half step and single step  is above dx_max half the step size */
 func runge_kutta_adaptive_stepper(function: ([Double], Double) -> ([Double]), y:[Double], t:Double, dt:Double) -> ([Double], Double){
     
     /** Fixed step size */
@@ -115,5 +119,5 @@ func runge_kutta_adaptive_stepper(function: ([Double], Double) -> ([Double]), y:
     }
 
 
-    return (double_step, h)
+    return (half_step, h)
 }
