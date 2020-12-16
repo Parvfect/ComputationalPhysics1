@@ -2,30 +2,26 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import numerical_integration as ode
 
-class ElasticPendulum:
+class DuffingOscillator:
 
-    y = np.array([0, 0.0, 0.0, 0.0])
+    y = np.array([0.0, 0.0])
 
-    def __init__(self, x1, y1, x2, y2, m, l, k, g):
+    def __init__(self, x, y, a, b, w, g, d):
         
-        self.y[0] = x1
-        self.y[1] = x2
-        self.y[2] = y1
-        self.y[3] = y2
-        self.m = m 
-        self.l = l
-        self.k = k 
-        self.g = g 
+        self.y[0] = x
+        self.y[1] = y
+        self.a = a 
+        self.b = b
+        self.w = w 
+        self.g = g
+        self.d = d 
 
     def fz(self, y, t):
+        
+        y11 = self.g*np.cos(self.w*t) - (self.d*y[1]) - (self.a*y[0]) - (self.b * y[0] * y[0] * y[0])
     
-        x1, x2, y1, y2 = y[0], y[1], y[2], y[3]
-
-        y12 = (- self.g * np.sin(y[0]) - 2 * y[3] * y[2] ) / (self.l + y[1])
-        y22 = (self.l + y[1]) * y[2]**2 - (self.k * (y[1]) / self.m)  +  self.g * np.cos(y[0])  
-
-        return np.array([y1, y2, y12, y22]) 
-
+        return np.array([y[1], y11])
+    
     def solve(self, steps, dt, type):
         
 
@@ -49,37 +45,22 @@ class ElasticPendulum:
             #Appending into arrays
             y_arr[0].append(self.y[0] * 180 / 3.14)
             y_arr[1].append(self.y[1])
-            y_arr[2].append(self.y[2])
-            y_arr[3].append(self.y[3])
             times.append(t)
             
             #Increasing the time
             t += dt
 
         plt.plot(times, y_arr[0])
-        plt.title("Position vs time for theta")
+        plt.title("Position vs time plot for theta")
         plt.xlabel("Time")
         plt.ylabel("Theta")
         plt.grid(True, which='both')
         plt.show()
 
-        plt.plot(times, y_arr[1])
-        plt.title("Position vs time for spring extension")
-        plt.xlabel("Time")
-        plt.ylabel("Spring extension")
-        plt.show()
-        
-        plt.plot(y_arr[0], y_arr[2])
+        plt.plot(y_arr[0], y_arr[1])
         plt.title("Phase space for theta")
         plt.xlabel("Theta")
         plt.ylabel("Angular Velocity")
         plt.grid(True, which='both')
         plt.show()
-
-        plt.plot(y_arr[1], y_arr[3])
-        plt.title("Phase space for spring extension")
-        plt.xlabel("Spring extension")
-        plt.ylabel("Spring extension velocity")
-        plt.grid(True, which='both')
-        plt.show()
-
+        
