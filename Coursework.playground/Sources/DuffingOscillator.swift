@@ -36,8 +36,8 @@ public struct DuffingOscillator{
     /** Returns the updated array based on the derivatives for time step dt */
     private func fz(y:[Double], t:Double) -> [Double]{
         
-        let y1 = ((self.g * cos(self.w * t)) - (self.d * y[1]) - (self.a * self.y[0]) - (self.b * y[0] * y[0] * y[0]))
-        return [y[1], y1]
+        let y2 = ((self.g * cos(self.w * t)) - (self.d * y[1]) - (self.a * self.y[0]) - (self.b * y[0] * y[0] * y[0]))
+        return [y[1], y2]
     
     }
     

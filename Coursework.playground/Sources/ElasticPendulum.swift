@@ -33,7 +33,7 @@ public struct ElasticPendellum{
     private func fz(y:[Double], t:Double) -> ([Double]){
         
         /** Second derivative of first generalised coordinate */
-        let y12 = (-self.g * sin(y[0]) - 2 * y[3] * y[2] ) / (self.l + y[2])
+        let y12 = (-self.g * sin(y[0]) - 2 * y[3] * y[2] ) / (self.l + y[1])
         
         /** Second derivative of second generalised coordinate */
         let y22 = (self.l + y[1]) * y[2] * y[2] - (self.k * (y[1]) / self.m)  +  self.g * cos(y[0])
@@ -103,7 +103,7 @@ public struct ElasticPendellum{
         }
         
         /** Returning the data for analysis */
-        return (y1, y2, x1, x2)
+        return (x1, x2, y1, y2)
         
     }
 }
