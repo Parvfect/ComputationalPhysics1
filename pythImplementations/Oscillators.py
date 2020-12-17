@@ -4,20 +4,18 @@ import math
 from matplotlib import animation
 import os
 from datetime import datetime
-import numerical_integration as ode
 
 #Creating a unique id for a specific execution so we can save the plots categorically
 path = os.getcwd()
 
 """Things to do ---- 
 
-1) Fix Double pendi overflow error
+1) Create tests file
 
-2) Elastic Pendulum equation check
+2) Double check runge kutta
 
-3) Create test file
+3) Adaptive step
 
-4) Is a runge kutta just changing the output variable or all..?
 """
 
 
@@ -127,9 +125,11 @@ class SimplePendellum:
             plt.show()
         """
 
-class ElasticPendellum(SimplePendellum):
+class ElasticPendellum:
 
+    g = 9.8
     lengths = []
+    positions = []
     v_lenghts = []
 
     def __init__(self, x1, y1, l0, m, x2, y2, spring_constant):
@@ -146,7 +146,7 @@ class ElasticPendellum(SimplePendellum):
         return (-self.g * np.sin(self.x1) - 2 * self.y2 * y ) / (self.l0 + self.x2)
 
     def f_z2(self, y):
-        return (self.m * (self.l0 + self.x2) * self.y1**2 - self.k * (self.x2) + self.m * self.g * np.cos(self.x1)) / self.m   
+        return (self.l0 + self.x2) * self.y1**2 - (self.k * (self.x2) / self.m)  +  self.g * np.cos(self.x1)  
     
     def runge_kutta(self, func, h, y):
         """Solves using the fifth order range kutta method"""
@@ -155,10 +155,9 @@ class ElasticPendellum(SimplePendellum):
         k1 = func(y)
         k2 = func(y + h*k1/2)
         k3 = func(y + h*k2/2)
-        k4 = func(y + h*k3/2)
-        k5 = func(y + h*k4)
+        k4 = func(y + h*k3)
         
-        return (k1 + k2 + k3 + k4 + k5)/5
+        return (k1 + 2 * k2 + 2 * k3 + k4)/6
         
     def solve(self, dt, n, type):
 
@@ -175,8 +174,8 @@ class ElasticPendellum(SimplePendellum):
         #Initializing the time variables
         times = []
         t = 0
-        ang_vels = []
-        vels = []
+        y2_arr = []
+        y1_arr = []
 
         if type == 1:
         
@@ -184,31 +183,31 @@ class ElasticPendellum(SimplePendellum):
           
                 z1 = self.f_z1(self.y1)
                 z2 = self.f_z2(self.y2)
-                self.y1 += z1 *dt
+                self.y1 += z1 * dt
                 self.y2 += z2 * dt 
                 self.x1 += self.y1 * dt
                 self.x2 += self.y2 * dt
-                self.positions.append(180*self.x1/3.14)
+                self.positions.append(180 * self.x1 / 3.14)
                 self.lengths.append(self.x2)
-                vels.append(self.y1)
-                ang_vels.append(self.y2)
+                y1_arr.append(self.y1)
+                y2_arr.append(self.y2)
 
-                t+=dt
+                t += dt
                 times.append(t)
         else:
           
             for i in range(n):  
           
-                z1 = self.runge_kutta(self.f_z1, dt, self.y1)
-                z2 = self.runge_kutta(self.f_z2, dt, self.y2)
+                z1 = self.runge_kutta(self.f_z1, 0.01, self.y1)
+                z2 = self.runge_kutta(self.f_z2, 0.01, self.y2)
                 self.y1 += z1 *dt
                 self.y2 += z2 * dt 
                 self.x1 += self.y1 * dt
                 self.x2 += self.y2 * dt
-                self.positions.append(180*self.x1/3.14)
+                self.positions.append(180 * self.x1 / 3.14)
                 self.lengths.append(self.x2)
-                vels.append(self.y1)
-                ang_vels.append(self.y2)
+                y1_arr.append(self.y1)
+                y2_arr.append(self.y2)
 
                 t+=dt
                 times.append(t)
@@ -230,7 +229,7 @@ class ElasticPendellum(SimplePendellum):
         
         
         fig = plt.figure()
-        plt.plot(self.positions, ang_vels)
+        plt.plot(self.positions, y1_arr)
         plt.xlabel("Theta (degrees)")
         plt.ylabel("Velocities")
         plt.show()
@@ -238,7 +237,7 @@ class ElasticPendellum(SimplePendellum):
 
         
         fig = plt.figure()
-        plt.plot(self.lengths, vels)
+        plt.plot(self.lengths, y2_arr)
         plt.xlabel("Lengths")
         plt.ylabel("Velocity of spring")
         plt.show()
@@ -272,27 +271,10 @@ class DoublePendellum():
         k1 = func(y)
         k2 = func(y + h*k1/2)
         k3 = func(y + h*k2/2)
-        k4 = func(y + h*k3/2)
-        k5 = func(y + h*k4)
+        k4 = func(y + h*k3)
         
-        return (k1 + k2 + k3 + k4 + k5)/5
+        return (k1 + 2 * k2 + 2 * k3 + k4)/6
         
-    def first_order_fz1(self, y):
-        
-        a = -self.g * (2 * self.m1 * self.m2) * np.sin(self.x1)
-        b = - self.m2 * self.g * np.sin(self.x1 - 2 * self.x2)
-        c = - 2 * np.sin(self.x1 - self.x2) * self.m2 * (self.y2**2 * self.l2 + y**2 * self.l1 * np.cos(self.x1 - self.x2))           
-        d = self.l1 * (2* self.m1 + self.m2 - self.m2 * np.cos(2 * self.x1 - 2* self.x2))
-        return (a + b + c)/d
-
-    def first_order_fz2(self, y):
-        
-        a = 2 * np.sin(self.x1 - self.x2) * (self.y1**2 * self.l1 * (self.m1 + self.m2))
-        b = self.g * (self.m1 + self.m2) * np.cos(self.x1)
-        c = y**2 * self.l2 * self.m2 * np.cos(self.x1 - self.x2)
-        d = self.l2 * (2 * self.m1 + self.m2 - self.m2 * np.cos(2 * (self.x1 - self.x2)))
-        return (a + b + c)/d
-
     def fz2(self, y):
         """Returns acceleration of x2 for time instant dt"""
         a = - self.l1 * self.z1 * np.cos(self.x1 - self.x2)/self.l2
@@ -302,8 +284,8 @@ class DoublePendellum():
         
     def fz1(self, y):
         """Returns acceleration for x1 for time instant dt"""
-        a =   -(self.m2 * self.l2 * self.x2 * np.cos(self.x1 - self.x2))/(self.l1*(self.m1+self.m2))
-        b =  -self.m2 * self.l2 * self.y2 * np.sin(self.x1 - self.x2)/(self.l1*(self.m1+self.m2))
+        a =   -(self.m2 * self.l2 * self.z2 * np.cos(self.x1 - self.x2))/ (self.l1 * (self.m1+self.m2))
+        b =  - self.m2 * self.l2 * self.y2 * self.y2 * np.sin(self.x1 - self.x2)/ (self.l1 * (self.m1+self.m2))
         c =  -self.g * np.sin(self.x1)/ self.l1
         return (a + b + c)
        
@@ -336,8 +318,8 @@ class DoublePendellum():
                 self.x2 += self.y2 * dt
 
                 #Appending into arrays
-                self.x1_arr.append(self.x1)
-                self.x2_arr.append(self.x2)
+                self.x1_arr.append(self.x1 * 180 / 3.14)
+                self.x2_arr.append(self.x2 * 180 / 3.14)
                 self.y1_arr.append(self.y1)
                 self.y2_arr.append(self.y2)
                 times.append(t)
@@ -348,16 +330,16 @@ class DoublePendellum():
             for i in range(n):
 
                 #Runge kutta method for integrating over small time steps
-                self.z1 = self.runge_kutta(self.first_order_fz1, self.y1, 0.001)
-                self.z2 = self.runge_kutta(self.first_order_fz2, self.y2, 0.001)
+                self.z1 = self.runge_kutta(self.fz1, self.y1, 0.001)
+                self.z2 = self.runge_kutta(self.fz2, self.y2, 0.001)
                 self.y1 += self.z1 * dt
                 self.y2 += self.z2 * dt
                 self.x1 += self.y1 * dt
                 self.x2 += self.y2 * dt
 
                 #Appending into arrays
-                self.x1_arr.append(self.x1)
-                self.x2_arr.append(self.x2)
+                self.x1_arr.append(self.x1 * 180 / 3.14)
+                self.x2_arr.append(self.x2 * 180 / 3.14)
                 self.y1_arr.append(self.y1)
                 self.y2_arr.append(self.y2)
                 times.append(t)
@@ -487,20 +469,19 @@ class DuffingOscillator:
 Orderly and not so chaotic
 """
 
-""""
-t = DoublePendellum(2.5, 2.5, 4.8, 4.8, 0.03, 0.02, 0.002, 0.003)
+"""
+t = DoublePendellum(2.5, 3.5, 6.8, 6.8, 0.05, 0.3, 0.002, 0.013)
 
-t.solve(0.01, 10000, 2)
-"""
-"""
-"""
+t.solve(0.001, 100000, 1)
 
+"""
 """
 t = DuffingOscillator(0.1, 0.02, 1, 5, 0.5, 8, 0.02)
-t.solve(0.01, 50000, 1)
+t.solve(0.01, 50000, 2)
+"""
 """
 
 
-
-t = ElasticPendellum(0.003, 0.1, 4.8, 1.5, 0.1, 0.01, 8.5)
-t.solve(0.001, 8000, 2)
+t = ElasticPendellum(0.03, 0.01, 4.8, 1.5, 0.04, 0.01, 5.5)
+t.solve(0.01, 100000, 1)
+"""

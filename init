@@ -1,5 +1,0 @@
-#!/bin/bash 
-
-export PATH=/home/parv/Downloads/swift-5.3-RELEASE-ubuntu20.04/usr/bin:"${PATH}"
-
-
