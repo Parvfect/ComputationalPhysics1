@@ -1,8 +1,7 @@
+
 /**
 Numerical integration methods 
-
 Euler, adaptive stepping euler, RK4, and adaptive stepping RK4
-
 */
 
 public func euler(function: ([Double], Double) -> ([Double]), y:[Double], t:Double, dt:Double) -> ([Double]){
@@ -33,7 +32,7 @@ public func euler_adaptive_step(function: ([Double], Double) -> ([Double]), y:[D
     half_step += dt/2 * (function(y, t + dt) + half_step)
     
     /** Checking if step size is above defined limit to control speed */
-    if h < h_min{
+    if(h < h_min) {
         h = h_fixed
     }
 
@@ -133,7 +132,6 @@ public func runge_kutta_adaptive_stepper(function: ([Double], Double) -> ([Doubl
             h = 2 * h
         }
     }
-
 
     return (half_step, h)
 }

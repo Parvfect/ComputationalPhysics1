@@ -3,7 +3,6 @@ import Foundation
 
 /*
 What I would like to add in this-- 
-
 1) Some special linear transformations and vectors, so that I don't have to enter them every time
 2) Better Documentation
 3) Handling for all kinds of operator overloading, not just one side
@@ -12,12 +11,10 @@ What I would like to add in this--
 6) A mapping feature -- need to figure out how to make graphs on swift
 7) . dot product operator overloading??
 8) Seperate files for special functions, classes, matrices, vectors, expressions
-
 */
 
 infix operator **
 //infix operator .
-
 public struct ComplexNumber:CustomStringConvertible {
     //A complex number representation
     public var real:Double
@@ -304,7 +301,6 @@ public struct Matrix{
     }
 
     /*func modulus(A:[[Double]] = [[]], total:Double = 0.0) -> Double {
-
         let indices = self.dimensions.0
         if self.dimensions.0 == self.dimensions.1{
             if self.dimensions.0 == 2{
@@ -312,12 +308,10 @@ public struct Matrix{
             }
             //Recursively creating smaller matrices to calcluate their determinant
             else{
-
                 for fc in 0..(indices){
                     As = self.copy()
                     As = As[1:]
                     height = len(As)
-
                     for i in 0..height{
                         As[i] = As[i][0:fc] + As[i][fc+1:] 
                     }
@@ -330,7 +324,6 @@ public struct Matrix{
                 return total
                 }
                 
-
             }
         }
     }*/
